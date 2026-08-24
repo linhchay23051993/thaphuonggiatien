@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">Tháp Hương Gia Tiên</string>
+    <string name="title_home">Trang chủ</string>
+    <string name="title_ancestor">Gia Tiên</string>
+    <string name="title_temple">Đền Chùa</string>
+    <string name="title_profile">Cá Nhân</string>
+
+    <string name="welcome_home">Chào mừng bạn đến với Tháp Hương Gia Tiên</string>
+    <string name="welcome_ancestor">Không gian thờ cúng Gia Tiên</string>
+    <string name="welcome_temple">Viếng Đền Chùa linh thiêng</string>
+    <string name="welcome_profile">Thông tin cá nhân của bạn</string>
+    <string name="btn_light_incense">Thắp Hương</string>
+    <string name="altar_description">Bàn thờ gia tiên</string>
+    <string name="user_name_default">Người dùng</string>
+    <string name="btn_edit_profile">Chỉnh sửa thông tin</string>
+    <string name="btn_history">Lịch sử thắp hương</string>
+</resources>
