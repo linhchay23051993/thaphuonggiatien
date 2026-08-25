@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_dialog_traditional"
+    android:gravity="center_horizontal"
+    android:orientation="vertical"
+    android:padding="24dp">
+
+    <TextView
+        android:id="@+id/txtTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:text="Thông báo"
+        android:textColor="#5D4037"
+        android:textSize="20sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/txtMessage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="24dp"
+        android:gravity="center"
+        android:text="Nội dung thông báo"
+        android:textColor="#5D4037"
+        android:textSize="16sp" />
+
+    <TextView
+        android:id="@+id/btnConfirm"
+        android:layout_width="160dp"
+        android:layout_height="45dp"
+        android:background="@drawable/bg_action_button"
+        android:clickable="true"
+        android:focusable="true"
+        android:gravity="center"
+        android:text="Đóng"
+        android:textColor="#5D4037"
+        android:textStyle="bold" />
+
+</LinearLayout>

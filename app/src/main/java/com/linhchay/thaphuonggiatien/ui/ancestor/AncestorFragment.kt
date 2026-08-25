@@ -1,69 +1,595 @@
 package com.linhchay.thaphuonggiatien.ui.ancestor
 
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
+import android.annotation.SuppressLint
+import android.content.Context
+import android.graphics.BlurMaskFilter
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AccelerateDecelerateInterpolator
+import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import com.google.android.material.tabs.TabLayout
+import com.linhchay.thaphuonggiatien.R
+import com.linhchay.thaphuonggiatien.data.model.AltarItem
 import com.linhchay.thaphuonggiatien.databinding.FragmentAncestorBinding
-import java.util.Locale
-import androidx.core.view.isVisible
+import com.linhchay.thaphuonggiatien.ui.home.adapter.EventAdapter
+import java.util.Random
+import kotlin.math.max
 
 class AncestorFragment : Fragment() {
 
     private var _binding: FragmentAncestorBinding? = null
     private val binding get() = _binding!!
+    private lateinit var viewModel: AncestorViewModel
+    private var isEditMode = false
+    private var smokeView: SmokeView? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val ancestorViewModel = ViewModelProvider(this).get(AncestorViewModel::class.java)
+        viewModel = ViewModelProvider(this).get(AncestorViewModel::class.java)
         _binding = FragmentAncestorBinding.inflate(inflater, container, false)
 
-        binding.btnLightIncense.setOnClickListener {
-            ancestorViewModel.startBurning(60000) // 1 minute
-        }
-
-        ancestorViewModel.isBurning.observe(viewLifecycleOwner) { isBurning ->
-            binding.btnLightIncense.isEnabled = !isBurning
-            binding.smokeEffect.isVisible = isBurning
-            binding.txtTimer.isVisible = isBurning
-            if (isBurning) {
-                startSmokeAnimation()
-            } else {
-                binding.smokeEffect.clearAnimation()
-            }
-        }
-
-        ancestorViewModel.remainingTime.observe(viewLifecycleOwner) { millis ->
-            val seconds = millis / 1000
-            binding.txtTimer.text = String.format(Locale.getDefault(), "%02d:%02d", seconds / 60, seconds % 60)
-        }
+        setupRecyclerView()
+        setupClickListeners()
+        observePlacedItems()
+        observeBurningStatus()
 
         return binding.root
     }
 
-    private fun startSmokeAnimation() {
-        binding.smokeEffect.alpha = 0f
-        binding.smokeEffect.animate()
-            .alpha(0.5f)
-            .setDuration(2000)
-            .withEndAction {
-                binding.smokeEffect.animate()
-                    .alpha(0f)
-                    .setDuration(2000)
-                    .withEndAction { if (binding.smokeEffect.isVisible) startSmokeAnimation() }
-                    .start()
+    private fun observeBurningStatus() {
+        viewModel.isBurning.observe(viewLifecycleOwner) { isBurning ->
+            if (isBurning) {
+                val batHuongView = findBatHuongView()
+                if (batHuongView != null) {
+                    // Chỉ khởi tạo hiệu ứng khói, không thêm view nén hương tĩnh
+                    startSmokeEffect(batHuongView)
+                }
+            } else {
+                removeSmokeEffect()
             }
+        }
+    }
+
+    private fun observePlacedItems() {
+        viewModel.placedItems.observe(viewLifecycleOwner) { items ->
+            val childCount = binding.altarContainer.childCount
+            if (childCount > 1) {
+                binding.altarContainer.removeViews(1, childCount - 1)
+            }
+            items.forEach { item ->
+                addPlacedItemView(item)
+            }
+        }
+    }
+
+    private fun addPlacedItemView(item: AltarItem) {
+        val itemView = layoutInflater.inflate(R.layout.layout_altar_item_resizable, binding.altarContainer, false)
+        val imgItem = itemView.findViewById<ImageView>(R.id.imgItem)
+        val borderView = itemView.findViewById<View>(R.id.borderView)
+        val btnDelete = itemView.findViewById<View>(R.id.btnDelete)
+        val handleBR = itemView.findViewById<View>(R.id.handleBottomRight)
+
+        imgItem.setImageResource(item.imageResId)
+        
+        val params = itemView.layoutParams
+        params.width = item.width
+        params.height = item.height
+        itemView.layoutParams = params
+        
+        itemView.x = item.x
+        itemView.y = item.y
+        itemView.tag = item.id
+
+        if (isEditMode) {
+            borderView.visibility = View.VISIBLE
+            btnDelete.visibility = View.VISIBLE
+            handleBR.visibility = View.VISIBLE
+            setupResizeAndDrag(itemView, item)
+        } else {
+            borderView.visibility = View.GONE
+            btnDelete.visibility = View.GONE
+            handleBR.visibility = View.GONE
+            itemView.setOnTouchListener(null)
+        }
+
+        binding.altarContainer.addView(itemView)
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
+    private fun setupResizeAndDrag(view: View, item: AltarItem) {
+        val btnDelete = view.findViewById<View>(R.id.btnDelete)
+        val handleBR = view.findViewById<View>(R.id.handleBottomRight)
+        
+        var dX = 0f
+        var dY = 0f
+        val minSize = 100
+
+        // Drag logic (Main View)
+        view.setOnTouchListener { v, event ->
+            if (!isEditMode) return@setOnTouchListener false
+            
+            when (event.actionMasked) {
+                MotionEvent.ACTION_DOWN -> {
+                    dX = v.x - event.rawX
+                    dY = v.y - event.rawY
+                    true
+                }
+                MotionEvent.ACTION_MOVE -> {
+                    v.x = event.rawX + dX
+                    v.y = event.rawY + dY
+                    item.x = v.x
+                    item.y = v.y
+                    true
+                }
+                MotionEvent.ACTION_UP -> {
+                    v.performClick()
+                    viewModel.updateItemPosition(item.id, item.x, item.y, v.width, v.height)
+                    true
+                }
+                else -> false
+            }
+        }
+
+        // Helper to update view size and item data
+        fun updateSize(newX: Float, newY: Float, newW: Int, newH: Int) {
+            view.x = newX
+            view.y = newY
+            val p = view.layoutParams
+            p.width = newW
+            p.height = newH
+            view.layoutParams = p
+            
+            item.x = newX
+            item.y = newY
+            item.width = newW
+            item.height = newH
+        }
+
+        // Delete Logic
+        btnDelete.setOnClickListener {
+            viewModel.removeItem(item.id)
+        }
+
+        // Bottom Right Resize
+        handleBR.setOnTouchListener { _, event ->
+            when (event.action) {
+                MotionEvent.ACTION_DOWN -> {
+                    dX = event.rawX
+                    dY = event.rawY
+                    true
+                }
+                MotionEvent.ACTION_MOVE -> {
+                    val deltaX = event.rawX - dX
+                    val deltaY = event.rawY - dY
+                    
+                    val newW = max(minSize, view.width + deltaX.toInt())
+                    val newH = max(minSize, view.height + deltaY.toInt())
+                    
+                    updateSize(view.x, view.y, newW, newH)
+                    
+                    dX = event.rawX
+                    dY = event.rawY
+                    true
+                }
+                MotionEvent.ACTION_UP -> {
+                    viewModel.updateItemPosition(item.id, item.x, item.y, item.width, item.height)
+                    true
+                }
+                else -> false
+            }
+        }
+    }
+
+    private fun setupRecyclerView() {
+        val adapter = EventAdapter()
+        binding.rvAnniversaries.adapter = adapter
+        viewModel.anniversaries.observe(viewLifecycleOwner) { list ->
+            adapter.submitList(list)
+        }
+    }
+
+    private fun setupClickListeners() {
+        // Hàng nút chức năng chính (Bottom)
+        binding.btnDangLe.setOnClickListener {
+            showArrangeDialog(onlyOfferings = true)
+        }
+        binding.btnThapHuong.setOnClickListener {
+            showIncenseDialog()
+        }
+        binding.btnBaiKhan.setOnClickListener {
+            showPrayerDialog()
+        }
+        binding.btnLichGio.setOnClickListener {
+            binding.rvAnniversaries.smoothScrollToPosition(0)
+        }
+
+        // Các nút điều khiển sắp xếp (Top/Edit Mode)
+        binding.btnMuaVatPham.setOnClickListener {
+            showArrangeDialog(onlyOfferings = false)
+        }
+        binding.btnSapXep.setOnClickListener {
+            enterEditMode()
+        }
+        binding.btnSave.setOnClickListener {
+            viewModel.saveChanges()
+            exitEditMode()
+        }
+        binding.btnCancelEdit.setOnClickListener {
+            viewModel.cancelChanges()
+            exitEditMode()
+        }
+    }
+
+    private fun enterEditMode() {
+        isEditMode = true
+        binding.btnSave.visibility = View.VISIBLE
+        binding.btnCancelEdit.visibility = View.VISIBLE
+        binding.btnSapXep.visibility = View.GONE
+        binding.btnMuaVatPham.visibility = View.VISIBLE
+        binding.layoutActions.visibility = View.GONE
+        refreshAltarItems()
+    }
+
+    private fun exitEditMode() {
+        isEditMode = false
+        binding.btnSave.visibility = View.GONE
+        binding.btnCancelEdit.visibility = View.GONE
+        binding.btnSapXep.visibility = View.VISIBLE
+        binding.btnMuaVatPham.visibility = View.VISIBLE
+        binding.layoutActions.visibility = View.VISIBLE
+        refreshAltarItems()
+    }
+
+    private fun refreshAltarItems() {
+        val items = viewModel.placedItems.value ?: emptyList()
+        val childCount = binding.altarContainer.childCount
+        if (childCount > 1) {
+            binding.altarContainer.removeViews(1, childCount - 1)
+        }
+        items.forEach { item ->
+            addPlacedItemView(item)
+        }
+    }
+
+    private fun showIncenseDialog() {
+        val dialogView = layoutInflater.inflate(R.layout.dialog_select_incense, null)
+        val optionOne = dialogView.findViewById<View>(R.id.optionOneStick)
+        val optionThree = dialogView.findViewById<View>(R.id.optionThreeSticks)
+        val btnOk = dialogView.findViewById<View>(R.id.btnOk)
+        val btnCancel = dialogView.findViewById<View>(R.id.btnCancel)
+        
+        var isThreeSticksSelected = false
+        optionOne.isSelected = true 
+        
+        val dialog = AlertDialog.Builder(requireContext())
+            .setView(dialogView)
+            .create()
+        
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+        optionOne.setOnClickListener {
+            optionOne.isSelected = true
+            optionThree.isSelected = false
+            isThreeSticksSelected = false
+        }
+        
+        optionThree.setOnClickListener {
+            optionThree.isSelected = true
+            optionOne.isSelected = false
+            isThreeSticksSelected = true
+        }
+
+        btnCancel.setOnClickListener { dialog.dismiss() }
+        btnOk.setOnClickListener {
+            startIncenseAnimation(isThreeSticksSelected)
+            dialog.dismiss()
+        }
+        
+        dialog.show()
+    }
+
+    private fun startIncenseAnimation(isThreeSticks: Boolean) {
+        val incenseResId = if (isThreeSticks) R.drawable.ba_nen else R.drawable.mot_nen
+        
+        val incenseView = ImageView(requireContext())
+        incenseView.setImageResource(incenseResId)
+        val sizeW = if (isThreeSticks) 60 else 30
+        val sizeH = 120
+        val params = ViewGroup.LayoutParams(sizeW, sizeH)
+        incenseView.layoutParams = params
+        
+        binding.root.addView(incenseView)
+        
+        // Bắt đầu từ bên trái màn hình
+        incenseView.x = -sizeW.toFloat()
+        incenseView.y = binding.root.height / 2f
+        
+        val batHuongView = findBatHuongView()
+        val targetX: Float
+        val targetY: Float
+        
+        if (batHuongView != null) {
+            val location = IntArray(2)
+            batHuongView.getLocationInWindow(location)
+            val rootLocation = IntArray(2)
+            binding.root.getLocationInWindow(rootLocation)
+            
+            targetX = (location[0] - rootLocation[0]).toFloat() + batHuongView.width / 2f - sizeW / 2f
+            targetY = (location[1] - rootLocation[1]).toFloat() - sizeH / 2f
+        } else {
+            // Nếu không thấy bát hương, bay vào giữa khu vực ban thờ
+            targetX = binding.altarContainer.x + binding.altarContainer.width / 2f - sizeW / 2f
+            targetY = binding.altarContainer.y + binding.altarContainer.height / 2f
+        }
+        
+        incenseView.animate()
+            .x(targetX)
+            .y(targetY)
+            .alpha(0f)
+            .setDuration(1950)
+            .setInterpolator(AccelerateDecelerateInterpolator())
+            .setListener(object : AnimatorListenerAdapter() {
+                override fun onAnimationEnd(animation: Animator) {
+                    binding.root.removeView(incenseView)
+                    viewModel.startBurning(if (isThreeSticks) 3 else 1)
+                }
+            })
             .start()
     }
 
+    private fun findBatHuongView(): View? {
+        val items = viewModel.placedItems.value ?: return null
+        val batHuongItem = items.find { it.type == "Bát hương" } ?: return null
+        
+        for (i in 0 until binding.altarContainer.childCount) {
+            val child = binding.altarContainer.getChildAt(i)
+            if (child.tag == batHuongItem.id) {
+                return child
+            }
+        }
+        return null
+    }
+
+    private fun startSmokeEffect(batHuongView: View) {
+        removeSmokeEffect()
+        val smoke = SmokeView(requireContext())
+        val smokeWidth = 300
+        val smokeHeight = 600
+        val params = ViewGroup.LayoutParams(smokeWidth, smokeHeight)
+        smoke.layoutParams = params
+
+        // Vị trí SmokeView căn giữa theo bát hương và thấp xuống thêm 24dp
+        val offset24dp = 24 * resources.displayMetrics.density
+        smoke.x = batHuongView.x + batHuongView.width / 2f - smokeWidth / 2f
+        smoke.y = batHuongView.y - smokeHeight + 40f + offset24dp
+
+        binding.altarContainer.addView(smoke)
+        smokeView = smoke
+    }
+
+    private fun removeSmokeEffect() {
+        smokeView?.let {
+            binding.altarContainer.removeView(it)
+            smokeView = null
+        }
+    }
+
+    /**
+     * View tùy chỉnh để vẽ hiệu ứng khói sử dụng hệ thống hạt (Particle System)
+     */
+    private inner class SmokeView(context: Context) : View(context) {
+        private val paint = Paint()
+        private val MAX_PARTICLES = 40
+        private val particles = Array(MAX_PARTICLES) { Particle() }
+        private val random = Random()
+        private var isRunning = false
+
+        init {
+            // Tắt tăng tốc phần cứng để BlurMaskFilter hoạt động ổn định
+            setLayerType(LAYER_TYPE_SOFTWARE, null)
+            paint.color = Color.WHITE
+            paint.isAntiAlias = true
+            // Tạo độ nhòe cho hạt khói mờ ảo hơn (25f)
+            paint.maskFilter = BlurMaskFilter(25f, BlurMaskFilter.Blur.NORMAL)
+        }
+
+        override fun onAttachedToWindow() {
+            super.onAttachedToWindow()
+            isRunning = true
+            postInvalidateOnAnimation()
+        }
+
+        override fun onDetachedFromWindow() {
+            super.onDetachedFromWindow()
+            isRunning = false
+        }
+
+        override fun onDraw(canvas: Canvas) {
+            super.onDraw(canvas)
+            for (p in particles) {
+                if (p.active) {
+                    p.update()
+                    if (p.alpha <= 0) {
+                        p.active = false
+                    } else {
+                        paint.alpha = p.alpha.toInt()
+                        canvas.drawCircle(p.x, p.y, p.radius, paint)
+                    }
+                } else if (random.nextFloat() < 0.05f) { // Tần suất sinh hạt tự nhiên
+                    p.reset(width.toFloat(), height.toFloat())
+                }
+            }
+            if (isRunning) {
+                // Sử dụng postInvalidateOnAnimation để tối ưu hiệu suất
+                postInvalidateOnAnimation()
+            }
+        }
+
+        private inner class Particle {
+            var x = 0f
+            var y = 0f
+            var radius = 0f
+            var speedY = 0f
+            var speedX = 0f
+            var alpha = 0f
+            var active = false
+
+            fun reset(width: Float, height: Float) {
+                // Hạt khói xuất phát ngẫu nhiên quanh tâm bát hương
+                x = width / 2f + (random.nextFloat() - 0.5f) * (width * 0.4f)
+                y = height * 0.9f
+                radius = 3 + random.nextFloat() * 5
+                speedY = 0.8f + random.nextFloat() * 1.2f
+                speedX = (random.nextFloat() - 0.5f) * 0.3f
+                alpha = 80 + random.nextFloat() * 60 // Khói nhạt
+                active = true
+            }
+
+            fun update() {
+                y -= speedY
+                x += speedX
+                alpha -= 0.7f // Tan biến chậm
+                radius += 0.4f // Nở rộng khi bay lên
+                speedX += (random.nextFloat() - 0.5f) * 0.05f // Lượn nhẹ
+            }
+        }
+    }
+
+    private fun showPrayerDialog() {
+        val dialog = androidx.appcompat.app.AlertDialog.Builder(requireContext()).create()
+        val view = layoutInflater.inflate(R.layout.dialog_info, null)
+        dialog.setView(view)
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+        view.findViewById<TextView>(R.id.txtTitle).text = "Bài khấn"
+        view.findViewById<TextView>(R.id.txtMessage).text = "Các bài khấn gia tiên đang được cập nhật..."
+        view.findViewById<View>(R.id.btnConfirm).setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialog.show()
+    }
+
+    private fun showArrangeDialog(onlyOfferings: Boolean = false) {
+        val dialogView = layoutInflater.inflate(R.layout.dialog_altar_items, null)
+        val tabLayout = dialogView.findViewById<TabLayout>(R.id.tabLayoutCategories)
+        val layoutItemsContainer = dialogView.findViewById<LinearLayout>(R.id.layoutItemsContainer)
+        val btnOk = dialogView.findViewById<View>(R.id.btnOk)
+        val btnCancel = dialogView.findViewById<View>(R.id.btnCancel)
+
+        var selectedResId: Int? = null
+        var selectedCategory: String? = null
+
+        val allCategories = listOf(
+            "Bàn thờ" to listOf(R.drawable.ban_tho,R.drawable.ban_tho,R.drawable.ban_tho,R.drawable.ban_tho,R.drawable.ban_tho),
+            "Khung ảnh" to listOf(R.drawable.khung_anh, R.drawable.khung_anh,R.drawable.khung_anh,R.drawable.khung_anh,R.drawable.khung_anh,R.drawable.khung_anh,R.drawable.khung_anh),
+            "Bát hương" to listOf(R.drawable.bat_huong,R.drawable.bat_huong,R.drawable.bat_huong,R.drawable.bat_huong,R.drawable.bat_huong,R.drawable.bat_huong,),
+            "Hoành phi" to listOf(R.drawable.hoanh_phi,R.drawable.hoanh_phi,R.drawable.hoanh_phi,R.drawable.hoanh_phi,R.drawable.hoanh_phi,R.drawable.hoanh_phi),
+            "Mâm hoa quả" to listOf(R.drawable.hoa_qua,R.drawable.hoa_qua,R.drawable.hoa_qua,R.drawable.hoa_qua,R.drawable.hoa_qua,R.drawable.hoa_qua),
+            "Chén rượu" to listOf(R.drawable.chen,R.drawable.chen,R.drawable.chen,R.drawable.chen,R.drawable.chen,R.drawable.chen),
+            "Hạc" to listOf(R.drawable.hac_phai,R.drawable.hac_phai,R.drawable.hac_phai,R.drawable.hac_phai,R.drawable.hac_phai,R.drawable.hac_phai),
+            "Nến" to listOf(android.R.drawable.ic_menu_edit),
+            "Đỉnh đồng" to listOf(android.R.drawable.ic_menu_manage)
+        )
+
+        val offerings = listOf("Mâm hoa quả", "Chén rượu", "Nến")
+        
+        val categories = if (onlyOfferings) {
+            allCategories.filter { it.first in offerings }
+        } else {
+            allCategories.filter { it.first !in offerings }
+        }
+
+        val dialog = AlertDialog.Builder(requireContext())
+            .setView(dialogView)
+            .create()
+
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+        categories.forEach { (name, _) ->
+            tabLayout.addTab(tabLayout.newTab().setText(name))
+        }
+
+        fun updateItems(position: Int) {
+            layoutItemsContainer.removeAllViews()
+            val images = categories[position].second
+            val categoryName = categories[position].first
+
+            images.forEach { resId ->
+                val itemView = layoutInflater.inflate(R.layout.item_altar_selectable, layoutItemsContainer, false)
+                val imgItem = itemView.findViewById<ImageView>(R.id.imgItem)
+                val viewSelected = itemView.findViewById<View>(R.id.viewSelected)
+                
+                imgItem.setImageResource(resId)
+                
+                // Hiển thị highlight nếu đã chọn
+                viewSelected.visibility = if (selectedResId == resId) View.VISIBLE else View.GONE
+
+                itemView.setOnClickListener {
+                    selectedResId = resId
+                    selectedCategory = categoryName
+                    // Cập nhật lại UI để highlight
+                    for (i in 0 until layoutItemsContainer.childCount) {
+                        val child = layoutItemsContainer.getChildAt(i)
+                        child.findViewById<View>(R.id.viewSelected).visibility = View.GONE
+                    }
+                    viewSelected.visibility = View.VISIBLE
+                }
+                layoutItemsContainer.addView(itemView)
+            }
+        }
+
+        btnOk.setOnClickListener {
+            selectedResId?.let { resId ->
+                val newItem = AltarItem(
+                    id = System.currentTimeMillis(),
+                    type = selectedCategory ?: "",
+                    imageResId = resId,
+                    x = 300f,
+                    y = 400f,
+                    width = 250,
+                    height = 250,
+                    batHuongId = if (selectedCategory == "Bát hương") "batHuong_${System.currentTimeMillis()}" else null
+                )
+                viewModel.addAltarItem(newItem)
+                dialog.dismiss()
+                enterEditMode()
+            }
+        }
+
+        btnCancel.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+            override fun onTabSelected(tab: TabLayout.Tab) { updateItems(tab.position) }
+            override fun onTabUnselected(tab: TabLayout.Tab?) {}
+            override fun onTabReselected(tab: TabLayout.Tab?) {}
+        })
+
+        updateItems(0)
+        dialog.show()
+    }
 
     override fun onDestroyView() {
         super.onDestroyView()
+        removeSmokeEffect()
         _binding = null
     }
 }

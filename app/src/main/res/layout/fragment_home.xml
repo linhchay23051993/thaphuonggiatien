@@ -67,94 +67,95 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
+            android:baselineAligned="false"
             android:orientation="horizontal"
             android:weightSum="2">
-            <androidx.cardview.widget.CardView
+
+            <LinearLayout
                 android:id="@+id/cardBanThoGiaTien"
                 android:layout_width="0dp"
                 android:layout_height="180dp"
-                android:layout_weight="1"
                 android:layout_marginEnd="8dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_action_button"
                 android:clickable="true"
                 android:focusable="true"
-                app:cardCornerRadius="20dp"
-                app:cardElevation="2dp">
-                <LinearLayout
-                    android:id="@+id/layoutBanThoGiaTien"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <ImageView
+                    android:id="@+id/imgBanThoIcon"
+                    android:layout_width="64dp"
+                    android:layout_height="64dp"
+                    android:src="@android:drawable/ic_menu_gallery"
+                    app:tint="#8B4513"
+                    android:contentDescription="@null" />
+
+                <TextView
+                    android:id="@+id/txtBanThoTitle"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
                     android:gravity="center"
-                    android:orientation="vertical"
-                    android:padding="16dp"
-                    android:background="?attr/selectableItemBackground">
-                    <ImageView
-                        android:id="@+id/imgBanThoIcon"
-                        android:layout_width="70dp"
-                        android:layout_height="70dp"
-                        android:src="@drawable/ic_event_placeholder"
-                        android:contentDescription="@null" />
-                    <TextView
-                        android:id="@+id/txtBanThoTitle"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="12dp"
-                        android:gravity="center"
-                        android:text="BAN THỜ\nGIA TIÊN"
-                        android:textSize="17sp"
-                        android:textStyle="bold" />
-                    <TextView
-                        android:id="@+id/txtBanThoDescription"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="6dp"
-                        android:gravity="center"
-                        android:text="Tự tạo ban thờ"
-                        android:textSize="13sp" />
-                </LinearLayout>
-            </androidx.cardview.widget.CardView>
-            <androidx.cardview.widget.CardView
+                    android:text="BAN THỜ\nGIA TIÊN"
+                    android:textColor="#5D4037"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/txtBanThoDescription"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:gravity="center"
+                    android:text="Tự tạo ban thờ"
+                    android:textColor="#8B4513"
+                    android:textSize="12sp" />
+            </LinearLayout>
+
+            <LinearLayout
                 android:id="@+id/cardDangLe"
                 android:layout_width="0dp"
                 android:layout_height="180dp"
-                android:layout_weight="1"
                 android:layout_marginStart="8dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_action_button"
                 android:clickable="true"
                 android:focusable="true"
-                app:cardCornerRadius="20dp"
-                app:cardElevation="2dp">
-                <LinearLayout
-                    android:id="@+id/layoutDangLe"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <ImageView
+                    android:id="@+id/imgDangLeIcon"
+                    android:layout_width="64dp"
+                    android:layout_height="64dp"
+                    android:src="@android:drawable/ic_menu_send"
+                    app:tint="#8B4513"
+                    android:contentDescription="@null" />
+
+                <TextView
+                    android:id="@+id/txtDangLeTitle"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
                     android:gravity="center"
-                    android:orientation="vertical"
-                    android:padding="16dp"
-                    android:background="?attr/selectableItemBackground">
-                    <ImageView
-                        android:id="@+id/imgDangLeIcon"
-                        android:layout_width="70dp"
-                        android:layout_height="70dp"
-                        android:src="@drawable/ic_event_placeholder"
-                        android:contentDescription="@null" />
-                    <TextView
-                        android:id="@+id/txtDangLeTitle"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="12dp"
-                        android:gravity="center"
-                        android:text="DÂNG LỄ\nĐỀN CHÙA"
-                        android:textSize="17sp"
-                        android:textStyle="bold" />
-                    <TextView
-                        android:id="@+id/txtDangLeDescription"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="6dp"
-                        android:gravity="center"
-                        android:text="Dâng lễ tại đền, chùa"
-                        android:textSize="13sp" />
-                </LinearLayout>
-            </androidx.cardview.widget.CardView>
+                    android:text="DÂNG LỄ\nĐỀN CHÙA"
+                    android:textColor="#5D4037"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/txtDangLeDescription"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:gravity="center"
+                    android:text="Dâng lễ tại đền, chùa"
+                    android:textColor="#8B4513"
+                    android:textSize="12sp" />
+            </LinearLayout>
         </LinearLayout>
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/layoutEventHeader"

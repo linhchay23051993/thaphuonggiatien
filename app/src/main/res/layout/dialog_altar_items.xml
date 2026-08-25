@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_dialog_traditional"
+    android:orientation="vertical"
+    android:padding="20dp">
+
+    <TextView
+        android:id="@+id/txtDialogTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="16dp"
+        android:text="Chọn vật phẩm"
+        android:textColor="#5D4037"
+        android:textSize="20sp"
+        android:textStyle="bold" />
+
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/tabLayoutCategories"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/transparent"
+        app:tabIndicatorColor="#8B4513"
+        app:tabIndicatorHeight="3dp"
+        app:tabMode="scrollable"
+        app:tabSelectedTextColor="#8B4513"
+        app:tabTextColor="#A1887F"
+        app:tabTextAppearance="@style/TraditionalTabTextAppearance" />
+
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:id="@+id/layoutItemsContainer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+            <!-- Items will be added here based on selected tab -->
+        </LinearLayout>
+    </HorizontalScrollView>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/btnCancel"
+            android:layout_width="0dp"
+            android:layout_height="45dp"
+            android:layout_marginEnd="8dp"
+            android:layout_weight="1"
+            android:background="@drawable/bg_action_button"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center"
+            android:text="Hủy"
+            android:textColor="#5D4037"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/btnOk"
+            android:layout_width="0dp"
+            android:layout_height="45dp"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1"
+            android:background="@drawable/bg_action_button"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center"
+            android:text="Xác nhận"
+            android:textColor="#5D4037"
+            android:textStyle="bold" />
+    </LinearLayout>
+</LinearLayout>

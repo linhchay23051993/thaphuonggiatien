@@ -4,9 +4,10 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.linhchay.thaphuonggiatien.R
 import com.linhchay.thaphuonggiatien.databinding.FragmentHomeBinding
 import com.linhchay.thaphuonggiatien.ui.home.adapter.EventAdapter
 
@@ -25,8 +26,19 @@ class HomeFragment : Fragment() {
         _binding = FragmentHomeBinding.inflate(interfaceInflater, container, false)
         
         setupEventsRecyclerView(homeViewModel)
+        setupClickListeners()
 
         return binding.root
+    }
+
+    private fun setupClickListeners() {
+        binding.cardBanThoGiaTien.setOnClickListener {
+            requireActivity().findViewById<BottomNavigationView>(R.id.nav_view)?.selectedItemId = R.id.navigation_ancestor
+        }
+        
+        binding.cardDangLe.setOnClickListener {
+            requireActivity().findViewById<BottomNavigationView>(R.id.nav_view)?.selectedItemId = R.id.navigation_temple
+        }
     }
 
     private fun setupEventsRecyclerView(viewModel: HomeViewModel) {

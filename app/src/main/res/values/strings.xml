@@ -14,4 +14,6 @@
     <string name="user_name_default">Người dùng</string>
     <string name="btn_edit_profile">Chỉnh sửa thông tin</string>
     <string name="btn_history">Lịch sử thắp hương</string>
+    <string name="btn_save">Lưu</string>
+    <string name="btn_cancel">Huỷ</string>
 </resources>
