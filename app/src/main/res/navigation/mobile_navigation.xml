@@ -21,7 +21,17 @@
         android:id="@+id/navigation_temple"
         android:name="com.linhchay.thaphuonggiatien.ui.temple.TempleFragment"
         android:label="Đền Chùa"
-        tools:layout="@layout/fragment_temple" />
+        tools:layout="@layout/fragment_temple">
+        <action
+            android:id="@+id/action_navigation_temple_to_templeAltarFragment"
+            app:destination="@id/templeAltarFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/templeAltarFragment"
+        android:name="com.linhchay.thaphuonggiatien.ui.temple.TempleAltarFragment"
+        android:label="Dâng Lễ Đền Chùa"
+        tools:layout="@layout/fragment_temple_altar" />
 
     <fragment
         android:id="@+id/navigation_profile"
