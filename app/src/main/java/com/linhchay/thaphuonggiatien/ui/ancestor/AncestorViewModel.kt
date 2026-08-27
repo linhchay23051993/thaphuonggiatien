@@ -8,8 +8,10 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import com.linhchay.thaphuonggiatien.R
 import com.linhchay.thaphuonggiatien.data.model.AltarItem
 import com.linhchay.thaphuonggiatien.data.model.Event
+import com.linhchay.thaphuonggiatien.data.model.Prayer
 
 class AncestorViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -28,23 +30,72 @@ class AncestorViewModel(application: Application) : AndroidViewModel(application
     private val _remainingTime = MutableLiveData<Long>(0L)
     val remainingTime: LiveData<Long> = _remainingTime
 
+    private val _isEditMode = MutableLiveData<Boolean>(false)
+    val isEditMode: LiveData<Boolean> = _isEditMode
+
     private val _burningSticks = MutableLiveData<Int>(0)
     val burningSticks: LiveData<Int> = _burningSticks
 
+    private val _prayers = MutableLiveData<List<Prayer>>()
+    val prayers: LiveData<List<Prayer>> = _prayers
+
     private var timer: CountDownTimer? = null
+
+    val allCategories = listOf(
+        "Bàn thờ" to listOf(R.drawable.ban_tho, R.drawable.ban_tho, R.drawable.ban_tho, R.drawable.ban_tho, R.drawable.ban_tho),
+        "Khung ảnh" to listOf(R.drawable.khung_anh, R.drawable.khung_anh, R.drawable.khung_anh, R.drawable.khung_anh, R.drawable.khung_anh, R.drawable.khung_anh, R.drawable.khung_anh),
+        "Bát hương" to listOf(R.drawable.bat_huong, R.drawable.bat_huong, R.drawable.bat_huong, R.drawable.bat_huong, R.drawable.bat_huong, R.drawable.bat_huong),
+        "Hoành phi" to listOf(R.drawable.hoanh_phi, R.drawable.hoanh_phi, R.drawable.hoanh_phi, R.drawable.hoanh_phi, R.drawable.hoanh_phi, R.drawable.hoanh_phi),
+        "Mâm hoa quả" to listOf(R.drawable.hoa_qua, R.drawable.hoa_qua, R.drawable.hoa_qua, R.drawable.hoa_qua, R.drawable.hoa_qua, R.drawable.hoa_qua),
+        "Chén rượu" to listOf(R.drawable.chen, R.drawable.chen, R.drawable.chen, R.drawable.chen, R.drawable.chen, R.drawable.chen),
+        "Hạc" to listOf(R.drawable.hac_phai, R.drawable.hac_phai, R.drawable.hac_phai, R.drawable.hac_phai, R.drawable.hac_phai, R.drawable.hac_phai),
+        "Nến" to listOf(android.R.drawable.ic_menu_edit),
+        "Đỉnh đồng" to listOf(android.R.drawable.ic_menu_manage)
+    )
+
+    private val offerings = listOf("Mâm hoa quả", "Chén rượu", "Nến")
 
     init {
         loadAnniversaries()
         loadPlacedItems()
+        loadPrayers()
+    }
+
+    private fun loadPrayers() {
+        val list = listOf(
+            Prayer(1, "Bài khấn Gia Tiên (Hàng ngày)", "Con lạy chín phương Trời, mười phương Chư Phật...\n\nHôm nay là ngày... tháng... năm...\n\nTín chủ con là...\nNgụ tại...\n\nThành tâm dâng nén hương thơm, hoa quả, lễ vật...\nCầu xin gia tiên phù hộ độ trì cho gia đình bình an, mạnh khỏe..."),
+            Prayer(2, "Bài khấn Rằm, Mùng 1", "Nam mô A Di Đà Phật!\nNam mô A Di Đà Phật!\nNam mô A Di Đà Phật!\n\nCon lạy chín phương Trời, mười phương Chư Phật...\n\nHôm nay là ngày Rằm (Mùng 1) tháng...\n\nTín chủ con kính mời vong linh tổ tiên nội ngoại..."),
+            Prayer(3, "Bài khấn Thổ Công, Táo Quân", "Con kính lạy Ngài Đông trù Tư mệnh Táo phủ Thần quân...\n\nHôm nay là ngày...\n\nTín chủ con thành tâm sắm sửa lễ vật, hương hoa trà quả..."),
+            Prayer(4, "Bài khấn Tất Niên", "Nam mô A Di Đà Phật!\n\nKính lạy Hoàng thiên Hậu thổ Chư vị Tôn thần...\nNgài Bản cảnh Thành hoàng, Ngài Bản xứ Thổ địa...\n\nHôm nay là ngày 30 tháng Chạp năm...\n\nSắm sửa lễ vật, cơm canh thịnh soạn..."),
+            Prayer(5, "Bài khấn Giao Thừa", "Nam mô A Di Đà Phật!\n\nKính lạy Cựu niên đương cai Thái tuế Chí đức Tôn thần, Tân niên đương cai Khúc Tào Phán quan...")
+        )
+        _prayers.value = list
+    }
+
+    fun getCategories(onlyOfferings: Boolean): List<Pair<String, List<Int>>> {
+        return if (onlyOfferings) {
+            allCategories.filter { it.first in offerings }
+        } else {
+            allCategories.filter { it.first !in offerings }
+        }
+    }
+
+    fun setEditMode(enabled: Boolean) {
+        _isEditMode.value = enabled
+    }
+
+    fun addEvent(name: String, lunarDate: String) {
+        val currentList = _anniversaries.value?.toMutableList() ?: mutableListOf()
+        val nextId = (currentList.maxOfOrNull { it.id } ?: 0) + 1
+        // For simplicity, we just set a dummy solar date as the user only inputs lunar date
+        val newEvent = Event(nextId, name, "2026", lunarDate)
+        currentList.add(newEvent)
+        _anniversaries.value = currentList
+        // In a real app, you would save this to persistent storage
     }
 
     private fun loadAnniversaries() {
-        val list = listOf(
-            Event(1, "Giỗ ông nội", "25/08/2026", "15/07 Âm lịch"),
-            Event(2, "Giỗ bà ngoại", "10/09/2026", "01/08 Âm lịch"),
-            Event(3, "Giỗ cụ cố", "15/10/2026", "06/09 Âm lịch")
-        )
-        _anniversaries.value = list
+        _anniversaries.value = emptyList()
     }
 
     private fun loadPlacedItems() {
