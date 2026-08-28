@@ -12,6 +12,7 @@ import com.linhchay.thaphuonggiatien.MainViewModel
 import com.linhchay.thaphuonggiatien.R
 import com.linhchay.thaphuonggiatien.databinding.FragmentTempleBinding
 import com.linhchay.thaphuonggiatien.ui.temple.adapter.TempleAdapter
+import com.linhchay.thaphuonggiatien.utils.ViewUtils
 
 class TempleFragment : Fragment() {
 
@@ -27,6 +28,8 @@ class TempleFragment : Fragment() {
         val templeViewModel = ViewModelProvider(this).get(TempleViewModel::class.java)
 
         _binding = FragmentTempleBinding.inflate(inflater, container, false)
+
+        ViewUtils.applyStatusBarMargin(binding.root)
 
         setupGoldObserver()
 

@@ -12,6 +12,7 @@ import com.linhchay.thaphuonggiatien.MainViewModel
 import com.linhchay.thaphuonggiatien.R
 import com.linhchay.thaphuonggiatien.databinding.FragmentHomeBinding
 import com.linhchay.thaphuonggiatien.ui.home.adapter.EventAdapter
+import com.linhchay.thaphuonggiatien.utils.ViewUtils
 
 class HomeFragment : Fragment() {
 
@@ -27,6 +28,8 @@ class HomeFragment : Fragment() {
         val homeViewModel = ViewModelProvider(this).get(HomeViewModel::class.java)
 
         _binding = FragmentHomeBinding.inflate(interfaceInflater, container, false)
+        
+        ViewUtils.applyStatusBarMargin(binding.root)
         
         setupGoldObserver()
         setupEventsRecyclerView(homeViewModel)

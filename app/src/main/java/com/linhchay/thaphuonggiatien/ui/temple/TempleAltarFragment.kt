@@ -31,6 +31,7 @@ import com.linhchay.thaphuonggiatien.data.model.AltarItem
 import com.linhchay.thaphuonggiatien.data.model.Temple
 import com.linhchay.thaphuonggiatien.databinding.FragmentTempleAltarBinding
 import com.linhchay.thaphuonggiatien.ui.ancestor.adapter.PrayerAdapter
+import com.linhchay.thaphuonggiatien.utils.ViewUtils
 import java.util.Random
 import kotlin.math.max
 
@@ -59,6 +60,8 @@ class TempleAltarFragment : Fragment() {
         viewModel = ViewModelProvider(this).get(TempleViewModel::class.java)
         _binding = FragmentTempleAltarBinding.inflate(inflater, container, false)
         
+        ViewUtils.applyStatusBarMargin(binding.root)
+
         setupGoldObserver()
         
         return binding.root

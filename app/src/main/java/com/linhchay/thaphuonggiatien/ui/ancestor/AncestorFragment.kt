@@ -35,6 +35,7 @@ import com.linhchay.thaphuonggiatien.R
 import com.linhchay.thaphuonggiatien.data.model.AltarItem
 import com.linhchay.thaphuonggiatien.databinding.FragmentAncestorBinding
 import com.linhchay.thaphuonggiatien.ui.home.adapter.EventAdapter
+import com.linhchay.thaphuonggiatien.utils.ViewUtils
 import java.util.Random
 import kotlin.math.max
 
@@ -53,6 +54,8 @@ class AncestorFragment : Fragment() {
     ): View {
         viewModel = ViewModelProvider(this).get(AncestorViewModel::class.java)
         _binding = FragmentAncestorBinding.inflate(inflater, container, false)
+
+        ViewUtils.applyStatusBarMargin(binding.root)
 
         setupGoldObserver()
         setupRecyclerView()

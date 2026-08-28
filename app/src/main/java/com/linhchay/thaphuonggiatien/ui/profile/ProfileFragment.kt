@@ -12,6 +12,7 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import com.linhchay.thaphuonggiatien.databinding.FragmentProfileBinding
+import com.linhchay.thaphuonggiatien.utils.ViewUtils
 import java.io.File
 import java.io.FileOutputStream
 import java.util.*
@@ -64,6 +65,9 @@ class ProfileFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentProfileBinding.inflate(inflater, container, false)
+        
+        ViewUtils.applyStatusBarMargin(binding.root)
+
         sharedPreferences = requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         
         setupUI()
