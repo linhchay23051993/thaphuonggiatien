@@ -55,7 +55,7 @@
             android:layout_height="match_parent"
             android:contentDescription="Ban thờ đền chùa"
             android:scaleType="fitXY"
-            android:src="@drawable/ban_tho" />
+            android:src="@drawable/ban_tho_1" />
 
         <!-- Đồ vật sẽ được thêm vào đây bằng code -->
     </androidx.constraintlayout.widget.ConstraintLayout>

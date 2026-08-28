@@ -42,18 +42,56 @@ class AncestorViewModel(application: Application) : AndroidViewModel(application
     private var timer: CountDownTimer? = null
 
     val allCategories = listOf(
-        "Bàn thờ" to listOf(R.drawable.ban_tho, R.drawable.ban_tho, R.drawable.ban_tho, R.drawable.ban_tho, R.drawable.ban_tho),
-        "Khung ảnh" to listOf(R.drawable.khung_anh, R.drawable.khung_anh, R.drawable.khung_anh, R.drawable.khung_anh, R.drawable.khung_anh, R.drawable.khung_anh, R.drawable.khung_anh),
-        "Bát hương" to listOf(R.drawable.bat_huong, R.drawable.bat_huong, R.drawable.bat_huong, R.drawable.bat_huong, R.drawable.bat_huong, R.drawable.bat_huong),
-        "Hoành phi" to listOf(R.drawable.hoanh_phi, R.drawable.hoanh_phi, R.drawable.hoanh_phi, R.drawable.hoanh_phi, R.drawable.hoanh_phi, R.drawable.hoanh_phi),
-        "Mâm hoa quả" to listOf(R.drawable.hoa_qua, R.drawable.hoa_qua, R.drawable.hoa_qua, R.drawable.hoa_qua, R.drawable.hoa_qua, R.drawable.hoa_qua),
-        "Chén rượu" to listOf(R.drawable.chen, R.drawable.chen, R.drawable.chen, R.drawable.chen, R.drawable.chen, R.drawable.chen),
-        "Hạc" to listOf(R.drawable.hac_phai, R.drawable.hac_phai, R.drawable.hac_phai, R.drawable.hac_phai, R.drawable.hac_phai, R.drawable.hac_phai),
-        "Nến" to listOf(android.R.drawable.ic_menu_edit),
-        "Đỉnh đồng" to listOf(android.R.drawable.ic_menu_manage)
+        "Bàn thờ" to listOf(
+            R.drawable.ban_tho_1,
+            R.drawable.ban_tho_2,
+            R.drawable.ban_tho_3,
+            R.drawable.ban_tho_4,
+            R.drawable.ban_tho_5
+        ),
+
+        "Khung ảnh" to listOf(
+            R.drawable.khung_anh_1,
+            R.drawable.khung_anh_2,
+            R.drawable.khung_anh_3,
+            R.drawable.khung_anh_4,
+            R.drawable.khung_anh_5
+        ),
+
+        "Bát hương" to listOf(
+            R.drawable.bat_huong_1,
+            R.drawable.bat_huong_2,
+            R.drawable.bat_huong_3,
+            R.drawable.bat_huong_4,
+            R.drawable.bat_huong_5
+        ),
+
+        "Hoành phi" to listOf(
+            R.drawable.hoanh_phi_1,
+            R.drawable.hoanh_phi_2,
+            R.drawable.hoanh_phi_3,
+            R.drawable.hoanh_phi_4,
+            R.drawable.hoanh_phi_5
+        ),
+
+        "Mâm hoa quả" to listOf(
+            R.drawable.hoa_qua_1,
+            R.drawable.hoa_qua_2,
+            R.drawable.hoa_qua_3,
+            R.drawable.hoa_qua_4,
+            R.drawable.hoa_qua_5
+        ),
+
+        "Chén rượu" to listOf(
+            R.drawable.chen_1,
+            R.drawable.chen_2,
+            R.drawable.chen_3,
+            R.drawable.chen_4,
+            R.drawable.chen_5
+        )
     )
 
-    private val offerings = listOf("Mâm hoa quả", "Chén rượu", "Nến")
+    private val offerings = listOf("Mâm hoa quả", "Chén rượu")
 
     init {
         loadAnniversaries()

@@ -19,11 +19,11 @@ class TempleViewModel(application: Application) : AndroidViewModel(application) 
 
     private val _temples = MutableLiveData<List<Temple>>().apply {
         value = listOf(
-            Temple(1, "Chùa Một Cột", "Đội Cấn, Ba Đình, Hà Nội", R.drawable.ic_event_placeholder, R.drawable.ban_tho),
-            Temple(2, "Chùa Hương", "Hương Sơn, Mỹ Đức, Hà Nội", R.drawable.ic_event_placeholder, R.drawable.ban_tho),
-            Temple(3, "Chùa Bái Đính", "Gia Sinh, Gia Viễn, Ninh Bình", R.drawable.ic_event_placeholder, R.drawable.ban_tho),
-            Temple(4, "Chùa Tam Chúc", "Ba Sao, Kim Bảng, Hà Nam", R.drawable.ic_event_placeholder, R.drawable.ban_tho),
-            Temple(5, "Đền Hùng", "Hy Cương, Việt Trì, Phú Thọ", R.drawable.ic_event_placeholder, R.drawable.ban_tho)
+            Temple(1, "Chùa Một Cột", "Đội Cấn, Ba Đình, Hà Nội", R.drawable.ic_event_placeholder, R.drawable.ban_tho_1),
+            Temple(2, "Chùa Hương", "Hương Sơn, Mỹ Đức, Hà Nội", R.drawable.ic_event_placeholder, R.drawable.ban_tho_1),
+            Temple(3, "Chùa Bái Đính", "Gia Sinh, Gia Viễn, Ninh Bình", R.drawable.ic_event_placeholder, R.drawable.ban_tho_1),
+            Temple(4, "Chùa Tam Chúc", "Ba Sao, Kim Bảng, Hà Nam", R.drawable.ic_event_placeholder, R.drawable.ban_tho_1),
+            Temple(5, "Đền Hùng", "Hy Cương, Việt Trì, Phú Thọ", R.drawable.ic_event_placeholder, R.drawable.ban_tho_1)
         )
     }
     val temples: LiveData<List<Temple>> = _temples
@@ -53,10 +53,10 @@ class TempleViewModel(application: Application) : AndroidViewModel(application) 
     val prayers: LiveData<List<Prayer>> = _prayers
 
     val allCategories = listOf(
-        "Bàn thờ" to listOf(R.drawable.ban_tho, R.drawable.ban_tho, R.drawable.ban_tho),
-        "Bát hương" to listOf(R.drawable.bat_huong, R.drawable.bat_huong, R.drawable.bat_huong),
-        "Mâm hoa quả" to listOf(R.drawable.hoa_qua, R.drawable.hoa_qua, R.drawable.hoa_qua),
-        "Chén rượu" to listOf(R.drawable.chen, R.drawable.chen, R.drawable.chen),
+        "Bàn thờ" to listOf(R.drawable.ban_tho_1, R.drawable.ban_tho_1, R.drawable.ban_tho_1),
+        "Bát hương" to listOf(R.drawable.bat_huong_1, R.drawable.bat_huong_1, R.drawable.bat_huong_1),
+        "Mâm hoa quả" to listOf(R.drawable.hoa_qua_1, R.drawable.hoa_qua_1, R.drawable.hoa_qua_1),
+        "Chén rượu" to listOf(R.drawable.chen_1, R.drawable.chen_1, R.drawable.chen_1),
         "Nến" to listOf(android.R.drawable.ic_menu_edit)
     )
 
