@@ -12,6 +12,8 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import com.linhchay.thaphuonggiatien.databinding.FragmentProfileBinding
+import java.io.File
+import java.io.FileOutputStream
 import java.util.*
 
 class ProfileFragment : Fragment() {
@@ -31,8 +33,28 @@ class ProfileFragment : Fragment() {
 
     private val pickImage = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         uri?.let {
-            selectedImageUri = it
-            binding.imgAvatar.setImageURI(it)
+            val localUri = copyUriToInternalStorage(it)
+            if (localUri != null) {
+                selectedImageUri = localUri
+                binding.imgAvatar.setImageURI(localUri)
+            }
+        }
+    }
+
+    private fun copyUriToInternalStorage(uri: Uri): Uri? {
+        return try {
+            val inputStream = requireContext().contentResolver.openInputStream(uri) ?: return null
+            val file = File(requireContext().filesDir, "profile_avatar.jpg")
+            val outputStream = FileOutputStream(file)
+            inputStream.use { input ->
+                outputStream.use { output ->
+                    input.copyTo(output)
+                }
+            }
+            Uri.fromFile(file)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
         }
     }
 
@@ -75,9 +97,20 @@ class ProfileFragment : Fragment() {
         }
 
         if (avatarUriString != null) {
-            val uri = Uri.parse(avatarUriString)
-            binding.imgAvatar.setImageURI(uri)
-            selectedImageUri = uri
+            try {
+                val uri = Uri.parse(avatarUriString)
+                // Kiểm tra quyền truy cập (đặc biệt cho các URI content:// cũ)
+                if (uri.scheme == "content") {
+                    requireContext().contentResolver.openInputStream(uri)?.close()
+                }
+                binding.imgAvatar.setImageURI(uri)
+                selectedImageUri = uri
+            } catch (e: Exception) {
+                // Nếu không có quyền truy cập, quay về ảnh mặc định
+                binding.imgAvatar.setImageResource(android.R.drawable.sym_def_app_icon)
+                selectedImageUri = null
+                sharedPreferences.edit().remove(KEY_AVATAR_URI).apply()
+            }
         } else {
             binding.imgAvatar.setImageResource(android.R.drawable.sym_def_app_icon)
             selectedImageUri = null
