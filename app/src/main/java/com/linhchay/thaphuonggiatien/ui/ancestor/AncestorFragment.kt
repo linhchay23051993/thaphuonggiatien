@@ -557,22 +557,31 @@ class AncestorFragment : Fragment() {
             layoutItemsContainer.removeAllViews()
             val images = categories[position].second
             val categoryName = categories[position].first
+            val purchasedIds = viewModel.purchasedResIds.value ?: emptySet()
 
             images.forEachIndexed { index, resId ->
                 val itemView = layoutInflater.inflate(R.layout.item_altar_selectable, layoutItemsContainer, false)
                 val imgItem = itemView.findViewById<ImageView>(R.id.imgItem)
+                val priceLayout = itemView.findViewById<View>(R.id.priceLayout)
                 val txtPrice = itemView.findViewById<TextView>(R.id.txtPrice)
                 val viewSelected = itemView.findViewById<View>(R.id.viewSelected)
+                val isPurchased = resId in purchasedIds
                 
                 imgItem.setImageResource(resId)
                 
                 // Demo price: 20, 30, 50
-                val price = when (index % 3) {
+                val price = if (isPurchased) 0 else when (index % 3) {
                     0 -> 20
                     1 -> 30
                     else -> 50
                 }
-                txtPrice.text = price.toString()
+                
+                if (isPurchased) {
+                    priceLayout.visibility = View.GONE
+                } else {
+                    priceLayout.visibility = View.VISIBLE
+                    txtPrice.text = price.toString()
+                }
                 
                 // Hiển thị highlight nếu đã chọn
                 viewSelected.visibility = if (selectedResId == resId) View.VISIBLE else View.GONE

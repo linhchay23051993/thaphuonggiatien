@@ -9,5 +9,6 @@ data class AltarItem(
     var width: Int = 200,
     var height: Int = 200,
     var batHuongId: String? = null,
-    val price: Int = 0
+    val price: Int = 0,
+    var isPurchased: Boolean = false
 )

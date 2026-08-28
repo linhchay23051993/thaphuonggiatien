@@ -39,6 +39,9 @@ class AncestorViewModel(application: Application) : AndroidViewModel(application
     private val _prayers = MutableLiveData<List<Prayer>>()
     val prayers: LiveData<List<Prayer>> = _prayers
 
+    private val _purchasedResIds = MutableLiveData<Set<Int>>(emptySet())
+    val purchasedResIds: LiveData<Set<Int>> = _purchasedResIds
+
     private var timer: CountDownTimer? = null
 
     val allCategories = listOf(
@@ -97,6 +100,16 @@ class AncestorViewModel(application: Application) : AndroidViewModel(application
         loadAnniversaries()
         loadPlacedItems()
         loadPrayers()
+        loadPurchasedItems()
+    }
+
+    private fun loadPurchasedItems() {
+        val json = sharedPrefs.getString("purchased_res_ids", null)
+        if (json != null) {
+            val type = object : TypeToken<Set<Int>>() {}.type
+            val ids: Set<Int> = gson.fromJson(json, type)
+            _purchasedResIds.value = ids
+        }
     }
 
     private fun loadPrayers() {
@@ -186,12 +199,29 @@ class AncestorViewModel(application: Application) : AndroidViewModel(application
 
         val savedIds = savedItems.map { it.id }.toSet()
         val currentItems = _placedItems.value ?: emptyList()
+        
+        val purchased = _purchasedResIds.value ?: emptySet()
 
-        return currentItems.filter { it.id !in savedIds }.sumOf { it.price }
+        return currentItems.filter { it.id !in savedIds && it.imageResId !in purchased }
+            .sumOf { it.price }
     }
 
     fun saveChanges() {
         savePlacedItems()
+        savePurchasedItems()
+    }
+
+    private fun savePurchasedItems() {
+        val currentItems = _placedItems.value ?: return
+        val currentPurchased = _purchasedResIds.value?.toMutableSet() ?: mutableSetOf()
+        
+        currentItems.forEach { 
+            currentPurchased.add(it.imageResId)
+        }
+        
+        _purchasedResIds.value = currentPurchased
+        val json = gson.toJson(currentPurchased)
+        sharedPrefs.edit().putString("purchased_res_ids", json).apply()
     }
 
     fun cancelChanges() {

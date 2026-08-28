@@ -37,6 +37,9 @@ class TempleViewModel(application: Application) : AndroidViewModel(application) 
     private val _isBurning = MutableLiveData<Boolean>(false)
     val isBurning: LiveData<Boolean> = _isBurning
 
+    private val _purchasedResIds = MutableLiveData<Set<Int>>(emptySet())
+    val purchasedResIds: LiveData<Set<Int>> = _purchasedResIds
+
     private val _burningSticks = MutableLiveData<Int>(0)
     val burningSticks: LiveData<Int> = _burningSticks
 
@@ -64,12 +67,26 @@ class TempleViewModel(application: Application) : AndroidViewModel(application) 
 
     fun loadTempleAltar(templeId: Int) {
         currentTempleId = templeId
+        loadPurchasedItems()
         val json = sharedPrefs.getString("temple_items_$templeId", null)
         if (json != null) {
             val type = object : TypeToken<List<AltarItem>>() {}.type
             _placedItems.value = gson.fromJson(json, type)
         } else {
             _placedItems.value = emptyList()
+        }
+    }
+
+    private fun loadPurchasedItems() {
+        // We use a common purchased items list for both Ancestor and Temple if intended, 
+        // but Ancestor used "altar_prefs". Temple uses "temple_altar_prefs".
+        // The user said "if purchased it, next time opening app...". 
+        // I'll use a separate key but maybe same logic.
+        val json = sharedPrefs.getString("purchased_res_ids", null)
+        if (json != null) {
+            val type = object : TypeToken<Set<Int>>() {}.type
+            val ids: Set<Int> = gson.fromJson(json, type)
+            _purchasedResIds.value = ids
         }
     }
 
@@ -115,9 +132,45 @@ class TempleViewModel(application: Application) : AndroidViewModel(application) 
 
     fun saveChanges() {
         if (currentTempleId != -1) {
-            val json = gson.toJson(_placedItems.value)
-            sharedPrefs.edit().putString("temple_items_$currentTempleId", json).apply()
+            savePlacedItems()
+            savePurchasedItems()
         }
+    }
+
+    private fun savePlacedItems() {
+        val json = gson.toJson(_placedItems.value)
+        sharedPrefs.edit().putString("temple_items_$currentTempleId", json).apply()
+    }
+
+    private fun savePurchasedItems() {
+        val currentItems = _placedItems.value ?: return
+        val currentPurchased = _purchasedResIds.value?.toMutableSet() ?: mutableSetOf()
+
+        currentItems.forEach {
+            currentPurchased.add(it.imageResId)
+        }
+
+        _purchasedResIds.value = currentPurchased
+        val json = gson.toJson(currentPurchased)
+        sharedPrefs.edit().putString("purchased_res_ids", json).apply()
+    }
+
+    fun calculateNewItemsCost(): Int {
+        if (currentTempleId == -1) return 0
+        val savedJson = sharedPrefs.getString("temple_items_$currentTempleId", null)
+        val savedItems: List<AltarItem> = if (savedJson != null) {
+            val type = object : TypeToken<List<AltarItem>>() {}.type
+            gson.fromJson(savedJson, type)
+        } else {
+            emptyList()
+        }
+
+        val savedIds = savedItems.map { it.id }.toSet()
+        val currentItems = _placedItems.value ?: emptyList()
+        val purchased = _purchasedResIds.value ?: emptySet()
+
+        return currentItems.filter { it.id !in savedIds && it.imageResId !in purchased }
+            .sumOf { it.price }
     }
 
     fun cancelChanges() {

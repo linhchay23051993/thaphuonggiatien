@@ -98,8 +98,14 @@ class TempleAltarFragment : Fragment() {
             viewModel.setEditMode(true)
         }
         binding.btnSave.setOnClickListener {
-            viewModel.saveChanges()
-            viewModel.setEditMode(false)
+            val totalCost = viewModel.calculateNewItemsCost()
+            val mainActivity = activity as? MainActivity
+            if (mainActivity?.updateGold(-totalCost) == true) {
+                viewModel.saveChanges()
+                viewModel.setEditMode(false)
+            } else {
+                android.widget.Toast.makeText(requireContext(), "Bạn không đủ vàng để mua các vật phẩm mới!", android.widget.Toast.LENGTH_SHORT).show()
+            }
         }
         binding.btnCancelEdit.setOnClickListener {
             viewModel.cancelChanges()
@@ -334,22 +340,31 @@ class TempleAltarFragment : Fragment() {
             layoutItemsContainer.removeAllViews()
             val images = categories[position].second
             val categoryName = categories[position].first
+            val purchasedIds = viewModel.purchasedResIds.value ?: emptySet()
 
             images.forEachIndexed { index, resId ->
                 val itemView = layoutInflater.inflate(R.layout.item_altar_selectable, layoutItemsContainer, false)
                 val imgItem = itemView.findViewById<ImageView>(R.id.imgItem)
+                val priceLayout = itemView.findViewById<View>(R.id.priceLayout)
                 val txtPrice = itemView.findViewById<TextView>(R.id.txtPrice)
                 val viewSelected = itemView.findViewById<View>(R.id.viewSelected)
+                val isPurchased = resId in purchasedIds
                 
                 imgItem.setImageResource(resId)
                 
                 // Demo price: 20, 30, 50
-                val price = when (index % 3) {
+                val price = if (isPurchased) 0 else when (index % 3) {
                     0 -> 20
                     1 -> 30
                     else -> 50
                 }
-                txtPrice.text = price.toString()
+                
+                if (isPurchased) {
+                    priceLayout.visibility = View.GONE
+                } else {
+                    priceLayout.visibility = View.VISIBLE
+                    txtPrice.text = price.toString()
+                }
 
                 viewSelected.visibility = if (selectedResId == resId) View.VISIBLE else View.GONE
 
@@ -368,24 +383,20 @@ class TempleAltarFragment : Fragment() {
 
         btnOk.setOnClickListener {
             selectedResId?.let { resId ->
-                val mainActivity = activity as? MainActivity
-                if (mainActivity?.updateGold(-selectedPrice) == true) {
-                    val newItem = AltarItem(
-                        id = System.currentTimeMillis(),
-                        type = selectedCategory ?: "",
-                        imageResId = resId,
-                        x = 300f,
-                        y = 400f,
-                        width = 250,
-                        height = 250,
-                        batHuongId = if (selectedCategory == "Bát hương") "batHuong_${System.currentTimeMillis()}" else null
-                    )
-                    viewModel.addAltarItem(newItem)
-                    dialog.dismiss()
-                    viewModel.setEditMode(true)
-                } else {
-                    android.widget.Toast.makeText(requireContext(), "Bạn không đủ vàng!", android.widget.Toast.LENGTH_SHORT).show()
-                }
+                val newItem = AltarItem(
+                    id = System.currentTimeMillis(),
+                    type = selectedCategory ?: "",
+                    imageResId = resId,
+                    x = 300f,
+                    y = 400f,
+                    width = 250,
+                    height = 250,
+                    batHuongId = if (selectedCategory == "Bát hương") "batHuong_${System.currentTimeMillis()}" else null,
+                    price = selectedPrice
+                )
+                viewModel.addAltarItem(newItem)
+                dialog.dismiss()
+                viewModel.setEditMode(true)
             }
         }
 
