@@ -5,8 +5,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.linhchay.thaphuonggiatien.MainViewModel
 import com.linhchay.thaphuonggiatien.R
 import com.linhchay.thaphuonggiatien.databinding.FragmentHomeBinding
 import com.linhchay.thaphuonggiatien.ui.home.adapter.EventAdapter
@@ -15,6 +17,7 @@ class HomeFragment : Fragment() {
 
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
+    private val mainViewModel: MainViewModel by activityViewModels()
 
     override fun onCreateView(
         interfaceInflater: LayoutInflater,
@@ -25,10 +28,17 @@ class HomeFragment : Fragment() {
 
         _binding = FragmentHomeBinding.inflate(interfaceInflater, container, false)
         
+        setupGoldObserver()
         setupEventsRecyclerView(homeViewModel)
         setupClickListeners()
 
         return binding.root
+    }
+
+    private fun setupGoldObserver() {
+        mainViewModel.gold.observe(viewLifecycleOwner) { gold ->
+            binding.layoutGold.txtGold.text = gold.toString()
+        }
     }
 
     private fun setupClickListeners() {

@@ -1,7 +1,7 @@
 package com.linhchay.thaphuonggiatien
 
-import android.content.Context
 import android.os.Bundle
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
@@ -11,6 +11,7 @@ import com.linhchay.thaphuonggiatien.databinding.ActivityMainBinding
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
+    private val viewModel: MainViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -25,28 +26,10 @@ class MainActivity : AppCompatActivity() {
 
         navView.setupWithNavController(navController)
 
-        handleGold()
+        viewModel.addInitialGold()
     }
 
     fun updateGold(amount: Int): Boolean {
-        val sharedPref = getSharedPreferences("game_prefs", Context.MODE_PRIVATE)
-        var currentGold = sharedPref.getInt("gold", 0)
-        
-        if (currentGold + amount < 0) return false
-        
-        currentGold += amount
-        sharedPref.edit().putInt("gold", currentGold).apply()
-        binding.txtGold.text = currentGold.toString()
-        return true
-    }
-
-    private fun handleGold() {
-        val sharedPref = getSharedPreferences("game_prefs", Context.MODE_PRIVATE)
-        var currentGold = sharedPref.getInt("gold", 0)
-        currentGold += 100
-        
-        sharedPref.edit().putInt("gold", currentGold).apply()
-
-        binding.txtGold.text = currentGold.toString()
+        return viewModel.updateGold(amount)
     }
 }

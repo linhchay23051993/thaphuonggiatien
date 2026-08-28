@@ -26,9 +26,11 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.tabs.TabLayout
 import com.linhchay.thaphuonggiatien.MainActivity
+import com.linhchay.thaphuonggiatien.MainViewModel
 import com.linhchay.thaphuonggiatien.R
 import com.linhchay.thaphuonggiatien.data.model.AltarItem
 import com.linhchay.thaphuonggiatien.databinding.FragmentAncestorBinding
@@ -41,6 +43,7 @@ class AncestorFragment : Fragment() {
     private var _binding: FragmentAncestorBinding? = null
     private val binding get() = _binding!!
     private lateinit var viewModel: AncestorViewModel
+    private val mainViewModel: MainViewModel by activityViewModels()
     private val smokeViews = mutableListOf<SmokeView>()
 
     override fun onCreateView(
@@ -51,11 +54,18 @@ class AncestorFragment : Fragment() {
         viewModel = ViewModelProvider(this).get(AncestorViewModel::class.java)
         _binding = FragmentAncestorBinding.inflate(inflater, container, false)
 
+        setupGoldObserver()
         setupRecyclerView()
         setupClickListeners()
         observeViewModel()
 
         return binding.root
+    }
+
+    private fun setupGoldObserver() {
+        mainViewModel.gold.observe(viewLifecycleOwner) { gold ->
+            binding.layoutGold.txtGold.text = gold.toString()
+        }
     }
 
     private fun observeViewModel() {

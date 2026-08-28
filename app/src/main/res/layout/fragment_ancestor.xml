@@ -320,6 +320,15 @@
         app:layout_constraintVertical_bias="0.0"
         tools:listitem="@layout/item_home_event" />
 
+    <include
+        android:id="@+id/layoutGold"
+        layout="@layout/layout_gold"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <!-- Giao diện Bài Khấn (Hiển thị đè lên các nút và danh sách) -->
     <LinearLayout
         android:id="@+id/layoutPrayerContainer"

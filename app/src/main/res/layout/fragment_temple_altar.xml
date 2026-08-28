@@ -59,6 +59,15 @@
         <!-- Đồ vật sẽ được thêm vào đây bằng code -->
     </androidx.constraintlayout.widget.ConstraintLayout>
 
+    <include
+        android:id="@+id/layoutGold"
+        layout="@layout/layout_gold"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/layoutTempleHeader" />
+
     <!-- Nút Vật phẩm và Sắp xếp ở góc trên bên phải -->
     <LinearLayout
         android:id="@+id/layoutTopActions"

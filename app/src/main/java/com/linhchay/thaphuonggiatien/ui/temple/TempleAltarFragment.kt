@@ -19,11 +19,13 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.tabs.TabLayout
 import com.linhchay.thaphuonggiatien.MainActivity
+import com.linhchay.thaphuonggiatien.MainViewModel
 import com.linhchay.thaphuonggiatien.R
 import com.linhchay.thaphuonggiatien.data.model.AltarItem
 import com.linhchay.thaphuonggiatien.data.model.Temple
@@ -37,6 +39,7 @@ class TempleAltarFragment : Fragment() {
     private var _binding: FragmentTempleAltarBinding? = null
     private val binding get() = _binding!!
     private lateinit var viewModel: TempleViewModel
+    private val mainViewModel: MainViewModel by activityViewModels()
     private var temple: Temple? = null
     private val smokeViews = mutableListOf<SmokeView>()
 
@@ -55,7 +58,16 @@ class TempleAltarFragment : Fragment() {
     ): View {
         viewModel = ViewModelProvider(this).get(TempleViewModel::class.java)
         _binding = FragmentTempleAltarBinding.inflate(inflater, container, false)
+        
+        setupGoldObserver()
+        
         return binding.root
+    }
+
+    private fun setupGoldObserver() {
+        mainViewModel.gold.observe(viewLifecycleOwner) { gold ->
+            binding.layoutGold.txtGold.text = gold.toString()
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
