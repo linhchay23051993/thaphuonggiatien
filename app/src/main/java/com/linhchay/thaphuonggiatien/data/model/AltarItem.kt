@@ -8,5 +8,6 @@ data class AltarItem(
     var y: Float = 0f,
     var width: Int = 200,
     var height: Int = 200,
-    var batHuongId: String? = null
+    var batHuongId: String? = null,
+    val price: Int = 0
 )

@@ -28,6 +28,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.tabs.TabLayout
+import com.linhchay.thaphuonggiatien.MainActivity
 import com.linhchay.thaphuonggiatien.R
 import com.linhchay.thaphuonggiatien.data.model.AltarItem
 import com.linhchay.thaphuonggiatien.databinding.FragmentAncestorBinding
@@ -247,8 +248,14 @@ class AncestorFragment : Fragment() {
             enterEditMode()
         }
         binding.btnSave.setOnClickListener {
-            viewModel.saveChanges()
-            viewModel.setEditMode(false)
+            val totalCost = viewModel.calculateNewItemsCost()
+            val mainActivity = activity as? MainActivity
+            if (mainActivity?.updateGold(-totalCost) == true) {
+                viewModel.saveChanges()
+                viewModel.setEditMode(false)
+            } else {
+                android.widget.Toast.makeText(requireContext(), "Bạn không đủ vàng để mua các vật phẩm mới!", android.widget.Toast.LENGTH_SHORT).show()
+            }
         }
         binding.btnCancelEdit.setOnClickListener {
             viewModel.cancelChanges()
@@ -294,8 +301,14 @@ class AncestorFragment : Fragment() {
 
         btnCancel.setOnClickListener { dialog.dismiss() }
         btnOk.setOnClickListener {
-            startIncenseAnimation(isThreeSticksSelected)
-            dialog.dismiss()
+            val price = if (isThreeSticksSelected) 10 else 5
+            val mainActivity = activity as? MainActivity
+            if (mainActivity?.updateGold(-price) == true) {
+                startIncenseAnimation(isThreeSticksSelected)
+                dialog.dismiss()
+            } else {
+                android.widget.Toast.makeText(requireContext(), "Bạn không đủ vàng!", android.widget.Toast.LENGTH_SHORT).show()
+            }
         }
         
         dialog.show()
@@ -526,6 +539,7 @@ class AncestorFragment : Fragment() {
 
         var selectedResId: Int? = null
         var selectedCategory: String? = null
+        var selectedPrice: Int = 0
 
         val categories = viewModel.getCategories(onlyOfferings)
 
@@ -544,12 +558,21 @@ class AncestorFragment : Fragment() {
             val images = categories[position].second
             val categoryName = categories[position].first
 
-            images.forEach { resId ->
+            images.forEachIndexed { index, resId ->
                 val itemView = layoutInflater.inflate(R.layout.item_altar_selectable, layoutItemsContainer, false)
                 val imgItem = itemView.findViewById<ImageView>(R.id.imgItem)
+                val txtPrice = itemView.findViewById<TextView>(R.id.txtPrice)
                 val viewSelected = itemView.findViewById<View>(R.id.viewSelected)
                 
                 imgItem.setImageResource(resId)
+                
+                // Demo price: 20, 30, 50
+                val price = when (index % 3) {
+                    0 -> 20
+                    1 -> 30
+                    else -> 50
+                }
+                txtPrice.text = price.toString()
                 
                 // Hiển thị highlight nếu đã chọn
                 viewSelected.visibility = if (selectedResId == resId) View.VISIBLE else View.GONE
@@ -557,6 +580,7 @@ class AncestorFragment : Fragment() {
                 itemView.setOnClickListener {
                     selectedResId = resId
                     selectedCategory = categoryName
+                    selectedPrice = price
                     // Cập nhật lại UI để highlight
                     for (i in 0 until layoutItemsContainer.childCount) {
                         val child = layoutItemsContainer.getChildAt(i)
@@ -578,7 +602,8 @@ class AncestorFragment : Fragment() {
                     y = 400f,
                     width = 250,
                     height = 250,
-                    batHuongId = if (selectedCategory == "Bát hương") "batHuong_${System.currentTimeMillis()}" else null
+                    batHuongId = if (selectedCategory == "Bát hương") "batHuong_${System.currentTimeMillis()}" else null,
+                    price = selectedPrice
                 )
                 viewModel.addAltarItem(newItem)
                 dialog.dismiss()

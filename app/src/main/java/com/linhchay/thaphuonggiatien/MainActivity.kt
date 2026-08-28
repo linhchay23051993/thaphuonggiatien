@@ -1,5 +1,6 @@
 package com.linhchay.thaphuonggiatien
 
+import android.content.Context
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.fragment.NavHostFragment
@@ -23,5 +24,29 @@ class MainActivity : AppCompatActivity() {
         val navController = navHostFragment.navController
 
         navView.setupWithNavController(navController)
+
+        handleGold()
+    }
+
+    fun updateGold(amount: Int): Boolean {
+        val sharedPref = getSharedPreferences("game_prefs", Context.MODE_PRIVATE)
+        var currentGold = sharedPref.getInt("gold", 0)
+        
+        if (currentGold + amount < 0) return false
+        
+        currentGold += amount
+        sharedPref.edit().putInt("gold", currentGold).apply()
+        binding.txtGold.text = currentGold.toString()
+        return true
+    }
+
+    private fun handleGold() {
+        val sharedPref = getSharedPreferences("game_prefs", Context.MODE_PRIVATE)
+        var currentGold = sharedPref.getInt("gold", 0)
+        currentGold += 100
+        
+        sharedPref.edit().putInt("gold", currentGold).apply()
+
+        binding.txtGold.text = currentGold.toString()
     }
 }

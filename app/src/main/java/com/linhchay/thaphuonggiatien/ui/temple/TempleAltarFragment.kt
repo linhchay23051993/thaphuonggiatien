@@ -23,6 +23,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.tabs.TabLayout
+import com.linhchay.thaphuonggiatien.MainActivity
 import com.linhchay.thaphuonggiatien.R
 import com.linhchay.thaphuonggiatien.data.model.AltarItem
 import com.linhchay.thaphuonggiatien.data.model.Temple
@@ -293,8 +294,14 @@ class TempleAltarFragment : Fragment() {
 
         btnCancel.setOnClickListener { dialog.dismiss() }
         btnOk.setOnClickListener {
-            startIncenseAnimation(isThreeSticksSelected)
-            dialog.dismiss()
+            val price = if (isThreeSticksSelected) 10 else 5
+            val mainActivity = activity as? MainActivity
+            if (mainActivity?.updateGold(-price) == true) {
+                startIncenseAnimation(isThreeSticksSelected)
+                dialog.dismiss()
+            } else {
+                android.widget.Toast.makeText(requireContext(), "Bạn không đủ vàng!", android.widget.Toast.LENGTH_SHORT).show()
+            }
         }
         
         dialog.show()
@@ -309,6 +316,7 @@ class TempleAltarFragment : Fragment() {
 
         var selectedResId: Int? = null
         var selectedCategory: String? = null
+        var selectedPrice: Int = 0
 
         val categories = viewModel.getCategories(onlyOfferings)
 
@@ -327,17 +335,28 @@ class TempleAltarFragment : Fragment() {
             val images = categories[position].second
             val categoryName = categories[position].first
 
-            images.forEach { resId ->
+            images.forEachIndexed { index, resId ->
                 val itemView = layoutInflater.inflate(R.layout.item_altar_selectable, layoutItemsContainer, false)
                 val imgItem = itemView.findViewById<ImageView>(R.id.imgItem)
+                val txtPrice = itemView.findViewById<TextView>(R.id.txtPrice)
                 val viewSelected = itemView.findViewById<View>(R.id.viewSelected)
                 
                 imgItem.setImageResource(resId)
+                
+                // Demo price: 20, 30, 50
+                val price = when (index % 3) {
+                    0 -> 20
+                    1 -> 30
+                    else -> 50
+                }
+                txtPrice.text = price.toString()
+
                 viewSelected.visibility = if (selectedResId == resId) View.VISIBLE else View.GONE
 
                 itemView.setOnClickListener {
                     selectedResId = resId
                     selectedCategory = categoryName
+                    selectedPrice = price
                     for (i in 0 until layoutItemsContainer.childCount) {
                         layoutItemsContainer.getChildAt(i).findViewById<View>(R.id.viewSelected).visibility = View.GONE
                     }
@@ -349,19 +368,24 @@ class TempleAltarFragment : Fragment() {
 
         btnOk.setOnClickListener {
             selectedResId?.let { resId ->
-                val newItem = AltarItem(
-                    id = System.currentTimeMillis(),
-                    type = selectedCategory ?: "",
-                    imageResId = resId,
-                    x = 300f,
-                    y = 400f,
-                    width = 250,
-                    height = 250,
-                    batHuongId = if (selectedCategory == "Bát hương") "batHuong_${System.currentTimeMillis()}" else null
-                )
-                viewModel.addAltarItem(newItem)
-                dialog.dismiss()
-                viewModel.setEditMode(true)
+                val mainActivity = activity as? MainActivity
+                if (mainActivity?.updateGold(-selectedPrice) == true) {
+                    val newItem = AltarItem(
+                        id = System.currentTimeMillis(),
+                        type = selectedCategory ?: "",
+                        imageResId = resId,
+                        x = 300f,
+                        y = 400f,
+                        width = 250,
+                        height = 250,
+                        batHuongId = if (selectedCategory == "Bát hương") "batHuong_${System.currentTimeMillis()}" else null
+                    )
+                    viewModel.addAltarItem(newItem)
+                    dialog.dismiss()
+                    viewModel.setEditMode(true)
+                } else {
+                    android.widget.Toast.makeText(requireContext(), "Bạn không đủ vàng!", android.widget.Toast.LENGTH_SHORT).show()
+                }
             }
         }
 

@@ -137,6 +137,21 @@ class AncestorViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
+    fun calculateNewItemsCost(): Int {
+        val savedJson = sharedPrefs.getString("placed_items", null)
+        val savedItems: List<AltarItem> = if (savedJson != null) {
+            val type = object : TypeToken<List<AltarItem>>() {}.type
+            gson.fromJson(savedJson, type)
+        } else {
+            emptyList()
+        }
+
+        val savedIds = savedItems.map { it.id }.toSet()
+        val currentItems = _placedItems.value ?: emptyList()
+
+        return currentItems.filter { it.id !in savedIds }.sumOf { it.price }
+    }
+
     fun saveChanges() {
         savePlacedItems()
     }
