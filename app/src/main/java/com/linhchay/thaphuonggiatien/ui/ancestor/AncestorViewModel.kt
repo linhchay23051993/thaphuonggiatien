@@ -6,17 +6,21 @@ import android.os.CountDownTimer
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.linhchay.thaphuonggiatien.R
 import com.linhchay.thaphuonggiatien.data.model.AltarItem
 import com.linhchay.thaphuonggiatien.data.model.Event
 import com.linhchay.thaphuonggiatien.data.model.Prayer
+import com.linhchay.thaphuonggiatien.data.repository.LunarSolarRepository
+import kotlinx.coroutines.launch
 
 class AncestorViewModel(application: Application) : AndroidViewModel(application) {
 
     private val sharedPrefs = application.getSharedPreferences("altar_prefs", Context.MODE_PRIVATE)
     private val gson = Gson()
+    private val repository = LunarSolarRepository()
 
     private val _placedItems = MutableLiveData<List<AltarItem>>(emptyList())
     val placedItems: LiveData<List<AltarItem>> = _placedItems
@@ -136,17 +140,48 @@ class AncestorViewModel(application: Application) : AndroidViewModel(application
     }
 
     fun addEvent(name: String, lunarDate: String) {
-        val currentList = _anniversaries.value?.toMutableList() ?: mutableListOf()
-        val nextId = (currentList.maxOfOrNull { it.id } ?: 0) + 1
-        // For simplicity, we just set a dummy solar date as the user only inputs lunar date
-        val newEvent = Event(nextId, name, "2026", lunarDate)
-        currentList.add(newEvent)
-        _anniversaries.value = currentList
-        // In a real app, you would save this to persistent storage
+        // Tách ngày và tháng từ chuỗi nhập vào (ví dụ: "15/7")
+        val parts = lunarDate.split("/")
+        if (parts.size < 2) return
+
+        val day = parts[0].toIntOrNull() ?: return
+        val month = parts[1].toIntOrNull() ?: return
+        
+        // Lấy năm hiện tại từ thiết bị làm giá trị cho y
+        val year = java.util.Calendar.getInstance().get(java.util.Calendar.YEAR)
+
+        viewModelScope.launch {
+            val result = repository.getLunarDate(day, month, year)
+            result.onSuccess { response ->
+                response?.let {
+                    val currentList = _anniversaries.value?.toMutableList() ?: mutableListOf()
+                    val nextId = (currentList.maxOfOrNull { it.id } ?: 0) + 1
+                    // Sử dụng "duong_lich" từ API và lưu ngày âm kèm năm thiết bị
+                    val newEvent = Event(nextId, name, it.duongLich, "$day/$month/$year (Âm lịch)")
+                    currentList.add(newEvent)
+                    _anniversaries.value = currentList
+                    saveAnniversaries()
+                }
+            }.onFailure {
+                // Xử lý lỗi (ví dụ: log lỗi kết nối)
+            }
+        }
+    }
+
+    private fun saveAnniversaries() {
+        val json = gson.toJson(_anniversaries.value)
+        sharedPrefs.edit().putString("anniversaries", json).apply()
     }
 
     private fun loadAnniversaries() {
-        _anniversaries.value = emptyList()
+        val json = sharedPrefs.getString("anniversaries", null)
+        if (json != null) {
+            val type = object : TypeToken<List<Event>>() {}.type
+            val list: List<Event> = gson.fromJson(json, type)
+            _anniversaries.value = list
+        } else {
+            _anniversaries.value = emptyList()
+        }
     }
 
     private fun loadPlacedItems() {

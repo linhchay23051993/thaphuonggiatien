@@ -9,4 +9,7 @@
     <color name="white">#FFFFFFFF</color>
     <color name="accent_color">#FFD700</color>
     <color name="delete_red">#FF4444</color>
+    <color name="orange_main">#E64A19</color>
+    <color name="gray_nav">#757575</color>
+    <color name="nav_bg">#FAF9F6</color>
 </resources>
