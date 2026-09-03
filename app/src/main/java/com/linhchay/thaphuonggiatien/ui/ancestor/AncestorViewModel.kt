@@ -140,12 +140,12 @@ class AncestorViewModel(application: Application) : AndroidViewModel(application
     }
 
     fun addEvent(name: String, lunarDate: String) {
-        // Tách ngày và tháng từ chuỗi nhập vào (ví dụ: "15/7")
-        val parts = lunarDate.split("/")
+        // Tách ngày và tháng từ chuỗi nhập vào (ví dụ: "15/7" hoặc "15-7")
+        val parts = lunarDate.split("/", "-")
         if (parts.size < 2) return
 
-        val day = parts[0].toIntOrNull() ?: return
-        val month = parts[1].toIntOrNull() ?: return
+        val day = parts[0].trim().toIntOrNull() ?: return
+        val month = parts[1].trim().toIntOrNull() ?: return
         
         // Lấy năm hiện tại từ thiết bị làm giá trị cho y
         val year = java.util.Calendar.getInstance().get(java.util.Calendar.YEAR)

@@ -649,6 +649,8 @@ class AncestorFragment : Fragment() {
 
     private fun showAddEventDialog() {
         val dialogView = layoutInflater.inflate(R.layout.dialog_add_event, null)
+        val tilName = dialogView.findViewById<com.google.android.material.textfield.TextInputLayout>(R.id.tilName)
+        val tilLunarDate = dialogView.findViewById<com.google.android.material.textfield.TextInputLayout>(R.id.tilLunarDate)
         val edtName = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.edtName)
         val edtLunarDate = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.edtLunarDate)
         val btnOk = dialogView.findViewById<View>(R.id.btnOk)
@@ -661,9 +663,39 @@ class AncestorFragment : Fragment() {
         dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
 
         btnOk.setOnClickListener {
-            val name = edtName.text.toString()
-            val lunarDate = edtLunarDate.text.toString()
-            if (name.isNotEmpty() && lunarDate.isNotEmpty()) {
+            val name = edtName.text.toString().trim()
+            val lunarDate = edtLunarDate.text.toString().trim()
+            
+            var isValid = true
+            
+            if (name.isEmpty()) {
+                tilName.error = "Vui lòng nhập tên người mất"
+                isValid = false
+            } else {
+                tilName.error = null
+            }
+
+            val dateRegex = Regex("""^\d{1,2}[/-]\d{1,2}$""")
+            if (lunarDate.isEmpty()) {
+                tilLunarDate.error = "Vui lòng nhập ngày giỗ"
+                isValid = false
+            } else if (!dateRegex.matches(lunarDate)) {
+                tilLunarDate.error = "Định dạng không đúng (VD: 15/7 hoặc 15-7)"
+                isValid = false
+            } else {
+                val parts = lunarDate.split("/", "-")
+                val day = parts[0].toIntOrNull() ?: 0
+                val month = parts[1].toIntOrNull() ?: 0
+                
+                if (day < 1 || day > 30 || month < 1 || month > 12) {
+                    tilLunarDate.error = "Ngày hoặc tháng không hợp lệ (Âm lịch)"
+                    isValid = false
+                } else {
+                    tilLunarDate.error = null
+                }
+            }
+
+            if (isValid) {
                 viewModel.addEvent(name, lunarDate)
                 dialog.dismiss()
             }
