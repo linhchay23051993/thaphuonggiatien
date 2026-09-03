@@ -55,6 +55,15 @@
                 android:text="05/07 Âm lịch"
                 android:textColor="#A1887F"
                 android:textSize="13sp" />
+            <TextView
+                android:id="@+id/txtStatus"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="Còn 5 ngày"
+                android:textColor="#D32F2F"
+                android:textSize="13sp"
+                android:textStyle="italic" />
         </LinearLayout>
         <ImageView
             android:id="@+id/imgEventArrow"

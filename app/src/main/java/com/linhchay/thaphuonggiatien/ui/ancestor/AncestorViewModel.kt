@@ -15,6 +15,11 @@ import com.linhchay.thaphuonggiatien.data.model.Event
 import com.linhchay.thaphuonggiatien.data.model.Prayer
 import com.linhchay.thaphuonggiatien.data.repository.LunarSolarRepository
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Date
+import java.util.Locale
+import java.util.concurrent.TimeUnit
 
 class AncestorViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -148,7 +153,7 @@ class AncestorViewModel(application: Application) : AndroidViewModel(application
         val month = parts[1].trim().toIntOrNull() ?: return
         
         // Lấy năm hiện tại từ thiết bị làm giá trị cho y
-        val year = java.util.Calendar.getInstance().get(java.util.Calendar.YEAR)
+        val year = Calendar.getInstance().get(Calendar.YEAR)
 
         viewModelScope.launch {
             val result = repository.getLunarDate(day, month, year)
@@ -157,7 +162,9 @@ class AncestorViewModel(application: Application) : AndroidViewModel(application
                     val currentList = _anniversaries.value?.toMutableList() ?: mutableListOf()
                     val nextId = (currentList.maxOfOrNull { it.id } ?: 0) + 1
                     // Sử dụng "duong_lich" từ API và lưu ngày âm kèm năm thiết bị
-                    val newEvent = Event(nextId, name, it.duongLich, "$day/$month/$year (Âm lịch)")
+                    val solarDateStr = it.duongLich
+                    val status = calculateStatus(solarDateStr)
+                    val newEvent = Event(nextId, name, solarDateStr, "$day/$month/$year (Âm lịch)", status)
                     currentList.add(newEvent)
                     _anniversaries.value = currentList
                     saveAnniversaries()
@@ -165,6 +172,37 @@ class AncestorViewModel(application: Application) : AndroidViewModel(application
             }.onFailure {
                 // Xử lý lỗi (ví dụ: log lỗi kết nối)
             }
+        }
+    }
+
+    private fun calculateStatus(solarDateStr: String): String {
+        return try {
+            val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+            val eventDate = sdf.parse(solarDateStr) ?: return ""
+            
+            val today = Calendar.getInstance()
+            today.set(Calendar.HOUR_OF_DAY, 0)
+            today.set(Calendar.MINUTE, 0)
+            today.set(Calendar.SECOND, 0)
+            today.set(Calendar.MILLISECOND, 0)
+            
+            val eventCal = Calendar.getInstance()
+            eventCal.time = eventDate
+            eventCal.set(Calendar.HOUR_OF_DAY, 0)
+            eventCal.set(Calendar.MINUTE, 0)
+            eventCal.set(Calendar.SECOND, 0)
+            eventCal.set(Calendar.MILLISECOND, 0)
+            
+            val diff = eventCal.timeInMillis - today.timeInMillis
+            val days = TimeUnit.MILLISECONDS.toDays(diff)
+            
+            when {
+                days == 0L -> "Hôm nay là ngày giỗ"
+                days > 0 -> "Còn $days ngày"
+                else -> "Đã qua"
+            }
+        } catch (e: Exception) {
+            ""
         }
     }
 
@@ -177,7 +215,9 @@ class AncestorViewModel(application: Application) : AndroidViewModel(application
         val json = sharedPrefs.getString("anniversaries", null)
         if (json != null) {
             val type = object : TypeToken<List<Event>>() {}.type
-            val list: List<Event> = gson.fromJson(json, type)
+            var list: List<Event> = gson.fromJson(json, type)
+            // Update statuses based on current date
+            list = list.map { it.copy(status = calculateStatus(it.solarDate)) }
             _anniversaries.value = list
         } else {
             _anniversaries.value = emptyList()

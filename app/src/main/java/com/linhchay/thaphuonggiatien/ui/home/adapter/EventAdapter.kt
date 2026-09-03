@@ -29,6 +29,7 @@ class EventAdapter : ListAdapter<Event, EventAdapter.EventViewHolder>(EventDiffC
             binding.txtEventName.text = event.name
             binding.txtSolarDate.text = event.solarDate
             binding.txtLunarDate.text = event.lunarDate
+            binding.txtStatus.text = event.status
         }
     }
 

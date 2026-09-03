@@ -4,5 +4,6 @@ data class Event(
     val id: Int,
     val name: String,
     val solarDate: String,
-    val lunarDate: String
+    val lunarDate: String,
+    val status: String = ""
 )
