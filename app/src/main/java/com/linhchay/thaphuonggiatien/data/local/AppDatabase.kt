@@ -4,12 +4,16 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import com.linhchay.thaphuonggiatien.data.local.dao.AltarDao
 import com.linhchay.thaphuonggiatien.data.local.dao.EventDao
 import com.linhchay.thaphuonggiatien.data.local.entities.EventEntity
+import com.linhchay.thaphuonggiatien.data.local.entities.PlacedItemEntity
+import com.linhchay.thaphuonggiatien.data.local.entities.PurchasedItemEntity
 
-@Database(entities = [EventEntity::class], version = 1, exportSchema = false)
+@Database(entities = [EventEntity::class, PlacedItemEntity::class, PurchasedItemEntity::class], version = 1, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun eventDao(): EventDao
+    abstract fun altarDao(): AltarDao
 
     companion object {
         @Volatile

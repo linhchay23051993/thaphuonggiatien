@@ -12,6 +12,8 @@ import com.google.gson.reflect.TypeToken
 import com.linhchay.thaphuonggiatien.R
 import com.linhchay.thaphuonggiatien.data.local.AppDatabase
 import com.linhchay.thaphuonggiatien.data.local.entities.EventEntity
+import com.linhchay.thaphuonggiatien.data.local.entities.PlacedItemEntity
+import com.linhchay.thaphuonggiatien.data.local.entities.PurchasedItemEntity
 import com.linhchay.thaphuonggiatien.data.model.AltarItem
 import com.linhchay.thaphuonggiatien.data.model.Event
 import com.linhchay.thaphuonggiatien.data.model.Prayer
@@ -35,7 +37,9 @@ class AncestorViewModel(application: Application) : AndroidViewModel(application
     private val sharedPrefs = application.getSharedPreferences("altar_prefs", Context.MODE_PRIVATE)
     private val gson = Gson()
     private val repository = LunarSolarRepository()
-    private val eventDao = AppDatabase.getDatabase(application).eventDao()
+    private val database = AppDatabase.getDatabase(application)
+    private val eventDao = database.eventDao()
+    private val altarDao = database.altarDao()
 
     private val _placedItems = MutableLiveData<List<AltarItem>>(emptyList())
     val placedItems: LiveData<List<AltarItem>> = _placedItems
@@ -117,17 +121,19 @@ class AncestorViewModel(application: Application) : AndroidViewModel(application
 
     init {
         loadAnniversaries()
-        loadPlacedItems()
+        loadPlacedItemsFromDb()
         loadPrayers()
-        loadPurchasedItems()
+        loadPurchasedItemsFromDb()
     }
 
-    private fun loadPurchasedItems() {
-        val json = sharedPrefs.getString("purchased_res_ids", null)
-        if (json != null) {
-            val type = object : TypeToken<Set<Int>>() {}.type
-            val ids: Set<Int> = gson.fromJson(json, type)
-            _purchasedResIds.value = ids
+    private var savedItems: List<AltarItem> = emptyList()
+
+    private fun loadPurchasedItemsFromDb() {
+        viewModelScope.launch {
+            altarDao.getAllPurchasedItems().collectLatest { entities ->
+                val ids = entities.map { it.imageResId }.toSet()
+                _purchasedResIds.postValue(ids)
+            }
         }
     }
 
@@ -323,14 +329,26 @@ class AncestorViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
-    private fun loadPlacedItems() {
-        val json = sharedPrefs.getString("placed_items", null)
-        if (json != null) {
-            val type = object : TypeToken<List<AltarItem>>() {}.type
-            val items: List<AltarItem> = gson.fromJson(json, type)
-            _placedItems.value = items
-        } else {
-            _placedItems.value = emptyList()
+    private fun loadPlacedItemsFromDb() {
+        viewModelScope.launch {
+            altarDao.getAllPlacedItems().collectLatest { entities ->
+                val items = entities.map { entity ->
+                    AltarItem(
+                        id = entity.originalId,
+                        type = entity.type,
+                        imageResId = entity.imageResId,
+                        x = entity.x,
+                        y = entity.y,
+                        width = entity.width,
+                        height = entity.height,
+                        batHuongId = entity.batHuongId,
+                        price = entity.price,
+                        isPurchased = true
+                    )
+                }
+                savedItems = items
+                _placedItems.postValue(items)
+            }
         }
     }
 
@@ -363,14 +381,6 @@ class AncestorViewModel(application: Application) : AndroidViewModel(application
     }
 
     fun calculateNewItemsCost(): Int {
-        val savedJson = sharedPrefs.getString("placed_items", null)
-        val savedItems: List<AltarItem> = if (savedJson != null) {
-            val type = object : TypeToken<List<AltarItem>>() {}.type
-            gson.fromJson(savedJson, type)
-        } else {
-            emptyList()
-        }
-
         val savedIds = savedItems.map { it.id }.toSet()
         val currentItems = _placedItems.value ?: emptyList()
         
@@ -381,30 +391,30 @@ class AncestorViewModel(application: Application) : AndroidViewModel(application
     }
 
     fun saveChanges() {
-        savePlacedItems()
-        savePurchasedItems()
-    }
-
-    private fun savePurchasedItems() {
         val currentItems = _placedItems.value ?: return
-        val currentPurchased = _purchasedResIds.value?.toMutableSet() ?: mutableSetOf()
-        
-        currentItems.forEach { 
-            currentPurchased.add(it.imageResId)
+        viewModelScope.launch {
+            val entities = currentItems.map { item ->
+                PlacedItemEntity(
+                    originalId = item.id,
+                    type = item.type,
+                    imageResId = item.imageResId,
+                    x = item.x,
+                    y = item.y,
+                    width = item.width,
+                    height = item.height,
+                    batHuongId = item.batHuongId,
+                    price = item.price
+                )
+            }
+            altarDao.updatePlacedItems(entities)
+            
+            val purchasedEntities = currentItems.map { PurchasedItemEntity(it.imageResId) }
+            altarDao.insertPurchasedItems(purchasedEntities)
         }
-        
-        _purchasedResIds.value = currentPurchased
-        val json = gson.toJson(currentPurchased)
-        sharedPrefs.edit().putString("purchased_res_ids", json).apply()
     }
 
     fun cancelChanges() {
-        loadPlacedItems()
-    }
-
-    private fun savePlacedItems() {
-        val json = gson.toJson(_placedItems.value)
-        sharedPrefs.edit().putString("placed_items", json).apply()
+        _placedItems.value = savedItems
     }
 
     fun startBurning(sticks: Int) {

@@ -80,10 +80,6 @@ class AncestorFragment : Fragment() {
             }
         }
 
-        viewModel.placedItems.observe(viewLifecycleOwner) { items ->
-            refreshAltarItems(items)
-        }
-
         viewModel.isEditMode.observe(viewLifecycleOwner) { isEdit ->
             updateEditUi(isEdit)
         }
