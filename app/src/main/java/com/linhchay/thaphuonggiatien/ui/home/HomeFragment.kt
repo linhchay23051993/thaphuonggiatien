@@ -13,6 +13,9 @@ import com.linhchay.thaphuonggiatien.R
 import com.linhchay.thaphuonggiatien.databinding.FragmentHomeBinding
 import com.linhchay.thaphuonggiatien.ui.home.adapter.EventAdapter
 import com.linhchay.thaphuonggiatien.utils.ViewUtils
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
 
 class HomeFragment : Fragment() {
 
@@ -34,8 +37,26 @@ class HomeFragment : Fragment() {
         setupGoldObserver()
         setupEventsRecyclerView(homeViewModel)
         setupClickListeners()
+        updateUserInfo()
 
         return binding.root
+    }
+
+    private fun updateUserInfo() {
+        val context = context ?: return
+        val sharedPref = context.getSharedPreferences("user_profile", android.content.Context.MODE_PRIVATE)
+        val name = sharedPref.getString("name", "")
+        
+        binding.txtUserName.text = if (name.isNullOrEmpty()) "Hello" else "Hello, $name"
+
+        val calendar = Calendar.getInstance()
+        val localeVi = Locale("vi", "VN")
+        val dayOfWeekFormat = SimpleDateFormat("EEEE", localeVi)
+        val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+
+        val dayOfWeek = dayOfWeekFormat.format(calendar.time).replaceFirstChar { it.uppercase() }
+        binding.txtDayOfWeek.text = dayOfWeek
+        binding.txtDate.text = dateFormat.format(calendar.time)
     }
 
     private fun setupGoldObserver() {

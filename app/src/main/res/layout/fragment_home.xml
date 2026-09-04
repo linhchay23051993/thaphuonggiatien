@@ -23,6 +23,7 @@
             <LinearLayout
                 android:id="@+id/layoutUserInfo"
                 android:layout_width="match_parent"
+                android:layout_marginTop="8dp"
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
                 android:orientation="horizontal">
@@ -32,6 +33,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:textColor="@color/black"
                     android:text="Xin chào, Linh"
                     android:textSize="18sp"
                     android:textStyle="bold" />
@@ -42,11 +44,13 @@
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="4dp"
                     android:text="Thứ Ba"
+                    android:textColor="@color/black"
                     android:textSize="13sp"
                     android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/txtDate"
+                    android:textColor="@color/black"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="20/08/2026"
@@ -58,13 +62,13 @@
                 layout="@layout/layout_gold"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp" />
+                android:layout_marginTop="4dp" />
 
             <androidx.cardview.widget.CardView
                 android:id="@+id/cardBanner"
                 android:layout_width="match_parent"
                 android:layout_height="250dp"
-                android:layout_marginTop="24dp"
+                android:layout_marginTop="16dp"
                 app:cardCornerRadius="20dp"
                 app:cardElevation="0dp">
 
@@ -190,6 +194,7 @@
                     android:text="SẮP DIỄN RA"
                     android:textSize="22sp"
                     android:textStyle="bold"
+                    android:textColor="@color/black"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
