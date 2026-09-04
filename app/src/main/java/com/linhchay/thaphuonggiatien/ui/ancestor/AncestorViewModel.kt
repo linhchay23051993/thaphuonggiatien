@@ -65,51 +65,51 @@ class AncestorViewModel(application: Application) : AndroidViewModel(application
 
     val allCategories = listOf(
         "Bàn thờ" to listOf(
-            R.drawable.ban_tho_1,
-            R.drawable.ban_tho_2,
-            R.drawable.ban_tho_3,
-            R.drawable.ban_tho_4,
-            R.drawable.ban_tho_5
+            AltarItem(id = 101, type = "Bàn thờ", imageResId = R.drawable.ban_tho_1, price = 10),
+            AltarItem(id = 102, type = "Bàn thờ", imageResId = R.drawable.ban_tho_2, price = 20),
+            AltarItem(id = 103, type = "Bàn thờ", imageResId = R.drawable.ban_tho_3, price = 30),
+            AltarItem(id = 104, type = "Bàn thờ", imageResId = R.drawable.ban_tho_4, price = 40),
+            AltarItem(id = 105, type = "Bàn thờ", imageResId = R.drawable.ban_tho_5, price = 50)
         ),
 
         "Khung ảnh" to listOf(
-            R.drawable.khung_anh_1,
-            R.drawable.khung_anh_2,
-            R.drawable.khung_anh_3,
-            R.drawable.khung_anh_4,
-            R.drawable.khung_anh_5
+            AltarItem(id = 201, type = "Khung ảnh", imageResId = R.drawable.khung_anh_1, price = 10),
+            AltarItem(id = 202, type = "Khung ảnh", imageResId = R.drawable.khung_anh_2, price = 30),
+            AltarItem(id = 203, type = "Khung ảnh", imageResId = R.drawable.khung_anh_3, price = 78),
+            AltarItem(id = 204, type = "Khung ảnh", imageResId = R.drawable.khung_anh_4, price = 77),
+            AltarItem(id = 205, type = "Khung ảnh", imageResId = R.drawable.khung_anh_5, price = 99)
         ),
 
         "Bát hương" to listOf(
-            R.drawable.bat_huong_1,
-            R.drawable.bat_huong_2,
-            R.drawable.bat_huong_3,
-            R.drawable.bat_huong_4,
-            R.drawable.bat_huong_5
+            AltarItem(id = 301, type = "Bát hương", imageResId = R.drawable.bat_huong_1, price = 10),
+            AltarItem(id = 302, type = "Bát hương", imageResId = R.drawable.bat_huong_2, price = 10),
+            AltarItem(id = 303, type = "Bát hương", imageResId = R.drawable.bat_huong_3, price = 10),
+            AltarItem(id = 304, type = "Bát hương", imageResId = R.drawable.bat_huong_4, price = 10),
+            AltarItem(id = 305, type = "Bát hương", imageResId = R.drawable.bat_huong_5, price = 10)
         ),
 
         "Hoành phi" to listOf(
-            R.drawable.hoanh_phi_1,
-            R.drawable.hoanh_phi_2,
-            R.drawable.hoanh_phi_3,
-            R.drawable.hoanh_phi_4,
-            R.drawable.hoanh_phi_5
+            AltarItem(id = 401, type = "Hoành phi", imageResId = R.drawable.hoanh_phi_1, price = 10),
+            AltarItem(id = 402, type = "Hoành phi", imageResId = R.drawable.hoanh_phi_2, price = 10),
+            AltarItem(id = 403, type = "Hoành phi", imageResId = R.drawable.hoanh_phi_3, price = 10),
+            AltarItem(id = 404, type = "Hoành phi", imageResId = R.drawable.hoanh_phi_4, price = 10),
+            AltarItem(id = 405, type = "Hoành phi", imageResId = R.drawable.hoanh_phi_5, price = 10)
         ),
 
         "Mâm hoa quả" to listOf(
-            R.drawable.hoa_qua_1,
-            R.drawable.hoa_qua_2,
-            R.drawable.hoa_qua_3,
-            R.drawable.hoa_qua_4,
-            R.drawable.hoa_qua_5
+            AltarItem(id = 501, type = "Mâm hoa quả", imageResId = R.drawable.hoa_qua_1, price = 10),
+            AltarItem(id = 502, type = "Mâm hoa quả", imageResId = R.drawable.hoa_qua_2, price = 50),
+            AltarItem(id = 503, type = "Mâm hoa quả", imageResId = R.drawable.hoa_qua_3, price = 10),
+            AltarItem(id = 504, type = "Mâm hoa quả", imageResId = R.drawable.hoa_qua_4, price = 100),
+            AltarItem(id = 505, type = "Mâm hoa quả", imageResId = R.drawable.hoa_qua_5, price = 10)
         ),
 
         "Chén rượu" to listOf(
-            R.drawable.chen_1,
-            R.drawable.chen_2,
-            R.drawable.chen_3,
-            R.drawable.chen_4,
-            R.drawable.chen_5
+            AltarItem(id = 601, type = "Chén rượu", imageResId = R.drawable.chen_1, price = 10),
+            AltarItem(id = 602, type = "Chén rượu", imageResId = R.drawable.chen_2, price = 20),
+            AltarItem(id = 603, type = "Chén rượu", imageResId = R.drawable.chen_3, price = 10),
+            AltarItem(id = 604, type = "Chén rượu", imageResId = R.drawable.chen_4, price = 55),
+            AltarItem(id = 605, type = "Chén rượu", imageResId = R.drawable.chen_5, price = 10)
         )
     )
 
@@ -142,7 +142,7 @@ class AncestorViewModel(application: Application) : AndroidViewModel(application
         _prayers.value = list
     }
 
-    fun getCategories(onlyOfferings: Boolean): List<Pair<String, List<Int>>> {
+    fun getCategories(onlyOfferings: Boolean): List<Pair<String, List<AltarItem>>> {
         return if (onlyOfferings) {
             allCategories.filter { it.first in offerings }
         } else {

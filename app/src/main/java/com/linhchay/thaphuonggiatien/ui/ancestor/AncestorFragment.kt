@@ -579,26 +579,22 @@ class AncestorFragment : Fragment() {
 
         fun updateItems(position: Int) {
             layoutItemsContainer.removeAllViews()
-            val images = categories[position].second
+            val items = categories[position].second
             val categoryName = categories[position].first
             val purchasedIds = viewModel.purchasedResIds.value ?: emptySet()
 
-            images.forEachIndexed { index, resId ->
+            items.forEach { item ->
                 val itemView = layoutInflater.inflate(R.layout.item_altar_selectable, layoutItemsContainer, false)
                 val imgItem = itemView.findViewById<ImageView>(R.id.imgItem)
                 val priceLayout = itemView.findViewById<View>(R.id.priceLayout)
                 val txtPrice = itemView.findViewById<TextView>(R.id.txtPrice)
                 val viewSelected = itemView.findViewById<View>(R.id.viewSelected)
-                val isPurchased = resId in purchasedIds
                 
-                imgItem.setImageResource(resId)
+                val isPurchased = item.imageResId in purchasedIds
                 
-                // Demo price: 20, 30, 50
-                val price = if (isPurchased) 0 else when (index % 3) {
-                    0 -> 20
-                    1 -> 30
-                    else -> 50
-                }
+                imgItem.setImageResource(item.imageResId)
+                
+                val price = if (isPurchased) 0 else item.price
                 
                 if (isPurchased) {
                     priceLayout.visibility = View.GONE
@@ -608,10 +604,10 @@ class AncestorFragment : Fragment() {
                 }
                 
                 // Hiển thị highlight nếu đã chọn
-                viewSelected.visibility = if (selectedResId == resId) View.VISIBLE else View.GONE
+                viewSelected.visibility = if (selectedResId == item.imageResId) View.VISIBLE else View.GONE
 
                 itemView.setOnClickListener {
-                    selectedResId = resId
+                    selectedResId = item.imageResId
                     selectedCategory = categoryName
                     selectedPrice = price
                     // Cập nhật lại UI để highlight
