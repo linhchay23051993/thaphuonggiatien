@@ -55,7 +55,7 @@ class HomeFragment : Fragment() {
     }
 
     private fun setupEventsRecyclerView(viewModel: HomeViewModel) {
-        val eventAdapter = EventAdapter()
+        val eventAdapter = EventAdapter(showActions = false)
         binding.rvEvents.adapter = eventAdapter
         
         viewModel.events.observe(viewLifecycleOwner) { events ->

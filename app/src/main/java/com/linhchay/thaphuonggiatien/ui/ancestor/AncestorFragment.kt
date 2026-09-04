@@ -9,18 +9,11 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.os.Bundle
-import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
-import android.view.WindowManager
 import android.view.animation.AccelerateDecelerateInterpolator
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.linhchay.thaphuonggiatien.data.model.Prayer
-import com.linhchay.thaphuonggiatien.ui.ancestor.adapter.PrayerAdapter
-import com.linhchay.thaphuonggiatien.databinding.DialogPrayersBinding
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -28,12 +21,16 @@ import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.tabs.TabLayout
 import com.linhchay.thaphuonggiatien.MainActivity
 import com.linhchay.thaphuonggiatien.MainViewModel
 import com.linhchay.thaphuonggiatien.R
 import com.linhchay.thaphuonggiatien.data.model.AltarItem
+import com.linhchay.thaphuonggiatien.data.model.Event
+import com.linhchay.thaphuonggiatien.data.model.Prayer
 import com.linhchay.thaphuonggiatien.databinding.FragmentAncestorBinding
+import com.linhchay.thaphuonggiatien.ui.ancestor.adapter.PrayerAdapter
 import com.linhchay.thaphuonggiatien.ui.home.adapter.EventAdapter
 import com.linhchay.thaphuonggiatien.utils.ViewUtils
 import java.util.Random
@@ -231,7 +228,21 @@ class AncestorFragment : Fragment() {
     }
 
     private fun setupRecyclerView() {
-        val adapter = EventAdapter()
+        val adapter = EventAdapter(
+            onEditClick = { event ->
+                showAddEventDialog(event)
+            },
+            onDeleteClick = { event ->
+                AlertDialog.Builder(requireContext())
+                    .setTitle("Xác nhận xoá")
+                    .setMessage("Bạn có chắc chắn muốn xoá ngày giỗ của ${event.name}?")
+                    .setPositiveButton("Xoá") { _, _ ->
+                        viewModel.deleteEvent(event.id)
+                    }
+                    .setNegativeButton("Hủy", null)
+                    .show()
+            }
+        )
         binding.rvAnniversaries.adapter = adapter
         viewModel.anniversaries.observe(viewLifecycleOwner) { list ->
             adapter.submitList(list)
@@ -647,7 +658,7 @@ class AncestorFragment : Fragment() {
         dialog.show()
     }
 
-    private fun showAddEventDialog() {
+    private fun showAddEventDialog(event: Event? = null) {
         val dialogView = layoutInflater.inflate(R.layout.dialog_add_event, null)
         val tilName = dialogView.findViewById<com.google.android.material.textfield.TextInputLayout>(R.id.tilName)
         val tilLunarDate = dialogView.findViewById<com.google.android.material.textfield.TextInputLayout>(R.id.tilLunarDate)
@@ -655,6 +666,15 @@ class AncestorFragment : Fragment() {
         val edtLunarDate = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.edtLunarDate)
         val btnOk = dialogView.findViewById<View>(R.id.btnOk)
         val btnCancel = dialogView.findViewById<View>(R.id.btnCancel)
+        val txtTitle = dialogView.findViewById<TextView>(R.id.txtTitle)
+
+        txtTitle.text = if (event == null) "Thêm Ngày Giỗ" else "Sửa Ngày Giỗ"
+        event?.let {
+            edtName.setText(it.name)
+            // Lấy phần ngày/tháng từ chuỗi lunarDate (VD: "15/7/2024 (Âm lịch)" -> "15/7")
+            val dateOnly = it.lunarDate.split(" ").firstOrNull()?.split("/")?.take(2)?.joinToString("/")
+            edtLunarDate.setText(dateOnly ?: "")
+        }
 
         val dialog = AlertDialog.Builder(requireContext())
             .setView(dialogView)
@@ -696,7 +716,11 @@ class AncestorFragment : Fragment() {
             }
 
             if (isValid) {
-                viewModel.addEvent(name, lunarDate)
+                if (event == null) {
+                    viewModel.addEvent(name, lunarDate)
+                } else {
+                    viewModel.updateEvent(event.id, name, lunarDate)
+                }
                 dialog.dismiss()
             }
         }

@@ -10,10 +10,19 @@ import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.linhchay.thaphuonggiatien.R
+import com.linhchay.thaphuonggiatien.data.local.AppDatabase
+import com.linhchay.thaphuonggiatien.data.local.entities.EventEntity
 import com.linhchay.thaphuonggiatien.data.model.AltarItem
 import com.linhchay.thaphuonggiatien.data.model.Event
 import com.linhchay.thaphuonggiatien.data.model.Prayer
 import com.linhchay.thaphuonggiatien.data.repository.LunarSolarRepository
+import com.linhchay.thaphuonggiatien.data.worker.SyncEventWorker
+import androidx.work.Constraints
+import androidx.work.Data
+import androidx.work.NetworkType
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -26,6 +35,7 @@ class AncestorViewModel(application: Application) : AndroidViewModel(application
     private val sharedPrefs = application.getSharedPreferences("altar_prefs", Context.MODE_PRIVATE)
     private val gson = Gson()
     private val repository = LunarSolarRepository()
+    private val eventDao = AppDatabase.getDatabase(application).eventDao()
 
     private val _placedItems = MutableLiveData<List<AltarItem>>(emptyList())
     val placedItems: LiveData<List<AltarItem>> = _placedItems
@@ -145,55 +155,115 @@ class AncestorViewModel(application: Application) : AndroidViewModel(application
     }
 
     fun addEvent(name: String, lunarDate: String) {
-        // Tách ngày và tháng từ chuỗi nhập vào (ví dụ: "15/7" hoặc "15-7")
         val parts = lunarDate.split("/", "-")
         if (parts.size < 2) return
 
         val day = parts[0].trim().toIntOrNull() ?: return
         val month = parts[1].trim().toIntOrNull() ?: return
-        
-        // Lấy năm hiện tại từ thiết bị làm giá trị cho y
         val year = Calendar.getInstance().get(Calendar.YEAR)
 
         viewModelScope.launch {
+            val tempEvent = EventEntity(
+                name = name,
+                solarDate = "Đang đồng bộ...",
+                lunarDate = "$day/$month/$year (Âm lịch)"
+            )
+            val insertedId = eventDao.insertEvent(tempEvent).toInt()
+
             val result = repository.getLunarDate(day, month, year)
             result.onSuccess { response ->
                 response?.let {
-                    val currentList = _anniversaries.value?.toMutableList() ?: mutableListOf()
-                    val nextId = (currentList.maxOfOrNull { it.id } ?: 0) + 1
-                    // Sử dụng "duong_lich" từ API và lưu ngày âm kèm năm thiết bị
                     val solarDateStr = it.duongLich
-                    val status = calculateStatus(solarDateStr)
-                    val newEvent = Event(nextId, name, solarDateStr, "$day/$month/$year (Âm lịch)", status)
-                    currentList.add(newEvent)
-                    _anniversaries.value = currentList
-                    saveAnniversaries()
+                    eventDao.updateEvent(tempEvent.copy(id = insertedId, solarDate = solarDateStr))
+                } ?: run {
+                    eventDao.updateEvent(tempEvent.copy(id = insertedId, solarDate = "Đồng bộ sau"))
+                    scheduleSyncWorker(insertedId, name, day, month, year)
                 }
             }.onFailure {
-                // Xử lý lỗi (ví dụ: log lỗi kết nối)
+                eventDao.updateEvent(tempEvent.copy(id = insertedId, solarDate = "Đồng bộ sau"))
+                scheduleSyncWorker(insertedId, name, day, month, year)
             }
         }
     }
 
-    private fun calculateStatus(solarDateStr: String): String {
+    fun updateEvent(id: Int, name: String, lunarDate: String) {
+        val parts = lunarDate.split("/", "-")
+        if (parts.size < 2) return
+
+        val day = parts[0].trim().toIntOrNull() ?: return
+        val month = parts[1].trim().toIntOrNull() ?: return
+        val year = Calendar.getInstance().get(Calendar.YEAR)
+
+        viewModelScope.launch {
+            val tempEvent = EventEntity(
+                id = id,
+                name = name,
+                solarDate = "Đang đồng bộ...",
+                lunarDate = "$day/$month/$year (Âm lịch)"
+            )
+            eventDao.updateEvent(tempEvent)
+
+            val result = repository.getLunarDate(day, month, year)
+            result.onSuccess { response ->
+                response?.let {
+                    val solarDateStr = it.duongLich
+                    eventDao.updateEvent(tempEvent.copy(solarDate = solarDateStr))
+                } ?: run {
+                    eventDao.updateEvent(tempEvent.copy(solarDate = "Đồng bộ sau"))
+                    scheduleSyncWorker(id, name, day, month, year)
+                }
+            }.onFailure {
+                eventDao.updateEvent(tempEvent.copy(solarDate = "Đồng bộ sau"))
+                scheduleSyncWorker(id, name, day, month, year)
+            }
+        }
+    }
+
+    private fun scheduleSyncWorker(eventId: Int?, name: String, day: Int, month: Int, year: Int) {
+        val data = Data.Builder()
+            .putInt("event_id", eventId ?: -1)
+            .putString("name", name)
+            .putInt("day", day)
+            .putInt("month", month)
+            .putInt("year", year)
+            .build()
+
+        val constraints = Constraints.Builder()
+            .setRequiredNetworkType(NetworkType.CONNECTED)
+            .build()
+
+        val syncRequest = OneTimeWorkRequestBuilder<SyncEventWorker>()
+            .setInputData(data)
+            .setConstraints(constraints)
+            .build()
+
+        WorkManager.getInstance(getApplication()).enqueue(syncRequest)
+    }
+
+    fun deleteEvent(eventId: Int) {
+        viewModelScope.launch {
+            eventDao.deleteEventById(eventId)
+        }
+    }
+
+    private fun parseDate(dateStr: String): Date? {
+        val formats = listOf("dd/MM/yyyy", "yyyy-MM-dd")
+        for (format in formats) {
+            try {
+                return SimpleDateFormat(format, Locale.getDefault()).apply { isLenient = false }.parse(dateStr)
+            } catch (e: Exception) {
+                continue
+            }
+        }
+        return null
+    }
+
+    private fun calculateStatus(solarDateStr: String, todayMillis: Long): String {
+        if (solarDateStr == "Đang đồng bộ..." || solarDateStr == "Đồng bộ sau") return solarDateStr
         return try {
-            val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-            val eventDate = sdf.parse(solarDateStr) ?: return ""
+            val eventDate = parseDate(solarDateStr) ?: return ""
             
-            val today = Calendar.getInstance()
-            today.set(Calendar.HOUR_OF_DAY, 0)
-            today.set(Calendar.MINUTE, 0)
-            today.set(Calendar.SECOND, 0)
-            today.set(Calendar.MILLISECOND, 0)
-            
-            val eventCal = Calendar.getInstance()
-            eventCal.time = eventDate
-            eventCal.set(Calendar.HOUR_OF_DAY, 0)
-            eventCal.set(Calendar.MINUTE, 0)
-            eventCal.set(Calendar.SECOND, 0)
-            eventCal.set(Calendar.MILLISECOND, 0)
-            
-            val diff = eventCal.timeInMillis - today.timeInMillis
+            val diff = eventDate.time - todayMillis
             val days = TimeUnit.MILLISECONDS.toDays(diff)
             
             when {
@@ -206,21 +276,50 @@ class AncestorViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
-    private fun saveAnniversaries() {
-        val json = gson.toJson(_anniversaries.value)
-        sharedPrefs.edit().putString("anniversaries", json).apply()
-    }
-
     private fun loadAnniversaries() {
-        val json = sharedPrefs.getString("anniversaries", null)
-        if (json != null) {
-            val type = object : TypeToken<List<Event>>() {}.type
-            var list: List<Event> = gson.fromJson(json, type)
-            // Update statuses based on current date
-            list = list.map { it.copy(status = calculateStatus(it.solarDate)) }
-            _anniversaries.value = list
-        } else {
-            _anniversaries.value = emptyList()
+        viewModelScope.launch {
+            eventDao.getAllEvents().collectLatest { entities ->
+                val today = Calendar.getInstance().apply {
+                    set(Calendar.HOUR_OF_DAY, 0)
+                    set(Calendar.MINUTE, 0)
+                    set(Calendar.SECOND, 0)
+                    set(Calendar.MILLISECOND, 0)
+                }.timeInMillis
+
+                val events = entities.map { entity ->
+                    Event(
+                        id = entity.id,
+                        name = entity.name,
+                        solarDate = entity.solarDate,
+                        lunarDate = entity.lunarDate,
+                        status = calculateStatus(entity.solarDate, today)
+                    )
+                }.sortedWith { e1, e2 ->
+                    val s1 = e1.solarDate == "Đang đồng bộ..." || e1.solarDate == "Đồng bộ sau"
+                    val s2 = e2.solarDate == "Đang đồng bộ..." || e2.solarDate == "Đồng bộ sau"
+
+                    if (s1 && !s2) return@sortedWith -1
+                    if (!s1 && s2) return@sortedWith 1
+                    if (s1 && s2) return@sortedWith e2.id.compareTo(e1.id)
+
+                    val t1 = parseDate(e1.solarDate)?.time ?: 0L
+                    val t2 = parseDate(e2.solarDate)?.time ?: 0L
+
+                    val diff1 = t1 - today
+                    val diff2 = t2 - today
+
+                    when {
+                        // Cả 2 đều chưa tới hoặc là hôm nay: Ngày gần hơn xếp trên (ASC)
+                        diff1 >= 0 && diff2 >= 0 -> diff1.compareTo(diff2)
+                        // Cả 2 đều đã qua: Ngày vừa qua (gần 0 hơn) xếp trên (DESC)
+                        diff1 < 0 && diff2 < 0 -> diff2.compareTo(diff1)
+                        // Ưu tiên ngày chưa tới lên trên
+                        diff1 >= 0 -> -1
+                        else -> 1
+                    }
+                }
+                _anniversaries.postValue(events)
+            }
         }
     }
 
