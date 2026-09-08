@@ -3,68 +3,90 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    app:cardBackgroundColor="#F5E8DC"
-    app:cardCornerRadius="12dp"
-    android:layout_marginBottom="6dp"
-    app:cardElevation="4dp">
+    app:cardBackgroundColor="#FDF5E6"
+    app:cardCornerRadius="8dp"
+    android:layout_marginBottom="8dp"
+    android:layout_marginStart="4dp"
+    android:layout_marginEnd="4dp"
+    app:cardElevation="2dp">
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:padding="8dp">
-        <ImageView
-            android:id="@+id/imgEventIcon"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:src="@drawable/ic_event_placeholder"
-            android:contentDescription="@null"
-            app:tint="#8B4513"
+
+        <View
+            android:id="@+id/viewAccent"
+            android:layout_width="3dp"
+            android:layout_height="0dp"
+            android:background="#8B4513"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
-        <LinearLayout
-            android:id="@+id/layoutEventContent"
-            android:layout_width="0dp"
+
+        <ImageView
+            android:id="@+id/imgEventIcon"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginStart="12dp"
+            android:src="@drawable/ic_event_placeholder"
+            android:contentDescription="Icon"
+            app:tint="#8B4513"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@id/viewAccent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/txtEventName"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="12dp"
-            android:orientation="vertical"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/layoutActions"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="Giỗ ông nội"
+            android:textColor="#3E2723"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            app:layout_constrainedWidth="true"
+            app:layout_constraintEnd_toStartOf="@+id/txtStatus"
+            app:layout_constraintHorizontal_bias="0"
+            app:layout_constraintHorizontal_chainStyle="packed"
             app:layout_constraintStart_toEndOf="@id/imgEventIcon"
-            app:layout_constraintTop_toTopOf="parent">
-            <TextView
-                android:id="@+id/txtEventName"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Giỗ ông nội"
-                android:textColor="#5D4037"
-                android:textSize="17sp"
-                android:textStyle="bold" />
-            <TextView
-                android:id="@+id/txtSolarDate"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="23/08/2026"
-                android:textColor="#8B4513"
-                android:textSize="14sp" />
-            <TextView
-                android:id="@+id/txtLunarDate"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:text="05/07 Âm lịch"
-                android:textColor="#A1887F"
-                android:textSize="13sp" />
-            <TextView
-                android:id="@+id/txtStatus"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:text="Còn 5 ngày"
-                android:textColor="#D32F2F"
-                android:textSize="13sp"
-                android:textStyle="italic" />
-        </LinearLayout>
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/txtStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="còn 5 ngày"
+            android:textColor="#D32F2F"
+            android:textSize="12sp"
+            android:textStyle="normal"
+            app:layout_constraintBaseline_toBaselineOf="@+id/txtEventName"
+            app:layout_constraintEnd_toStartOf="@+id/layoutActions"
+            app:layout_constraintStart_toEndOf="@+id/txtEventName" />
+
+        <TextView
+            android:id="@+id/txtSolarDate"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Dương: 4/6 - Âm: 5/6"
+            android:textColor="#5D4037"
+            android:textSize="12sp"
+            app:layout_constraintEnd_toStartOf="@+id/layoutActions"
+            app:layout_constraintStart_toStartOf="@+id/txtEventName"
+            app:layout_constraintTop_toBottomOf="@+id/txtEventName" />
+
+        <TextView
+            android:id="@+id/txtLunarDate"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:visibility="gone"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+
         <LinearLayout
             android:id="@+id/layoutActions"
             android:layout_width="wrap_content"
@@ -76,18 +98,17 @@
 
             <ImageView
                 android:id="@+id/btnEdit"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:padding="8dp"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginEnd="8dp"
                 android:src="@android:drawable/ic_menu_edit"
                 android:contentDescription="Sửa"
                 app:tint="#8B4513" />
 
             <ImageView
                 android:id="@+id/btnDelete"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:padding="8dp"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
                 android:src="@android:drawable/ic_menu_delete"
                 android:contentDescription="Xoá"
                 app:tint="#D32F2F" />

@@ -12,4 +12,29 @@
     <color name="orange_main">#E64A19</color>
     <color name="gray_nav">#757575</color>
     <color name="nav_bg">#FAF9F6</color>
+
+    <!-- Ancient Traditional Palette (Material 3 inspired) -->
+    <color name="md3_trad_primary">#8B4513</color> <!-- Saddle Brown -->
+    <color name="md3_trad_onPrimary">#FFFFFF</color>
+    <color name="md3_trad_primaryContainer">#F5E8DC</color>
+    <color name="md3_trad_onPrimaryContainer">#3E2723</color>
+
+    <color name="md3_trad_secondary">#5D4037</color>
+    <color name="md3_trad_onSecondary">#FFFFFF</color>
+
+    <color name="md3_trad_surface">#FFFDFB</color>
+    <color name="md3_trad_onSurface">#3E2723</color>
+    <color name="md3_trad_onSurfaceVariant">#5D4037</color>
+    <color name="md3_trad_outline">#D2B48C</color>
+    <color name="md3_trad_outlineVariant">#E0C2A0</color>
+
+    <!-- Legacy / Compatibility -->
+    <color name="ancient_brown_dark">#3E2723</color>
+    <color name="ancient_brown_medium">#5D4037</color>
+    <color name="ancient_brown_light">#8B4513</color>
+    <color name="ancient_gold">#D4AF37</color>
+    <color name="ancient_gold_light">#D2B48C</color>
+    <color name="ancient_cream">#F5DEB3</color>
+    <color name="border_gray_normal">#BDBDBD</color>
+    <color name="trad_divider">#E0C2A0</color>
 </resources>

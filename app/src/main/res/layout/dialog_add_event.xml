@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@drawable/bg_dialog_traditional"
@@ -12,7 +13,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:text="Thêm Ngày Giỗ"
-        android:textColor="#5D4037"
+        android:textColor="@color/ancient_brown_medium"
         android:textSize="20sp"
         android:textStyle="bold" />
 
@@ -21,7 +22,7 @@
         android:layout_height="1dp"
         android:layout_marginTop="8dp"
         android:layout_marginBottom="16dp"
-        android:background="#D2B48C" />
+        android:background="@color/ancient_gold_light" />
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/tilName"
@@ -29,14 +30,15 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Tên người mất"
-        android:textColorHint="#8B4513">
+        android:textColorHint="@color/ancient_brown_light"
+        app:boxStrokeColor="@color/til_outline_color">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/edtName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="textPersonName"
-            android:textColor="#3E2723" />
+            android:textColor="@color/ancient_brown_dark" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
@@ -46,15 +48,16 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
         android:hint="Ngày âm lịch (VD: 15/07)"
-        android:textColorHint="#8B4513">
+        android:textColorHint="@color/ancient_brown_light"
+        app:boxStrokeColor="@color/til_outline_color">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/edtLunarDate"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="text"
             android:digits="0123456789/-"
-            android:textColor="#3E2723" />
+            android:inputType="text"
+            android:textColor="@color/ancient_brown_dark" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <LinearLayout
@@ -70,15 +73,15 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Huỷ"
-            android:textColor="#8B4513" />
+            android:textColor="@color/ancient_brown_light" />
 
-            <Button
-                android:id="@+id/btnOk"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:backgroundTint="#8B4513"
-                android:text="Lưu"
-                android:textColor="@color/white" />
+        <Button
+            android:id="@+id/btnOk"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:backgroundTint="@color/ancient_brown_light"
+            android:text="Lưu"
+            android:textColor="@color/white" />
     </LinearLayout>
 </LinearLayout>

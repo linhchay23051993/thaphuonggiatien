@@ -7,6 +7,8 @@ import androidx.work.ListenableWorker
 import com.linhchay.thaphuonggiatien.data.local.AppDatabase
 import com.linhchay.thaphuonggiatien.data.local.entities.EventEntity
 import com.linhchay.thaphuonggiatien.data.repository.LunarSolarRepository
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 class SyncEventWorker(
     context: Context,
@@ -31,11 +33,17 @@ class SyncEventWorker(
                 val response = result.getOrNull()
                 if (response != null) {
                     val solarDateStr = response.duongLich
+                    val solarDate = try {
+                        SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).apply { isLenient = false }.parse(solarDateStr)
+                    } catch (e: Exception) {
+                        null
+                    }
                     val eventEntity = EventEntity(
                         id = if (eventId != -1) eventId else 0,
                         name = name,
                         solarDate = solarDateStr,
-                        lunarDate = "$day/$month/$year (Âm lịch)"
+                        lunarDate = "$day/$month/$year (Âm lịch)",
+                        eventDate = solarDate?.time ?: 0L
                     )
                     
                     if (eventId != -1) {

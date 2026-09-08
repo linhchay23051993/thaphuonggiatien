@@ -16,4 +16,14 @@
     <string name="btn_history">Lịch sử thắp hương</string>
     <string name="btn_save">Lưu</string>
     <string name="btn_cancel">Huỷ</string>
+    <string name="btn_items">Vật phẩm</string>
+    <string name="btn_arrange">Sắp xếp</string>
+    <string name="btn_offering">Dâng lễ</string>
+    <string name="btn_incense">Thắp hương</string>
+    <string name="btn_prayer">Bài khấn</string>
+    <string name="title_anniversary_list">DANH SÁCH NGÀY GIỖ</string>
+    <string name="btn_add">Thêm</string>
+    <string name="btn_back">Quay lại</string>
+    <string name="btn_close">Đóng</string>
+    <string name="prayer_title">Bài Khấn</string>
 </resources>

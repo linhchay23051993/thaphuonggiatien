@@ -40,6 +40,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
                         name = entity.name,
                         solarDate = entity.solarDate,
                         lunarDate = entity.lunarDate,
+                        eventDate = entity.eventDate,
                         status = calculateStatus(entity.solarDate, today)
                     )
                 }.sortedWith { e1, e2 ->

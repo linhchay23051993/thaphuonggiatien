@@ -34,10 +34,37 @@ class EventAdapter(
         private val onDeleteClick: ((Event) -> Unit)?
     ) : RecyclerView.ViewHolder(binding.root) {
         fun bind(event: Event) {
+            // Cập nhật tên và trạng thái đếm ngược riêng biệt
             binding.txtEventName.text = event.name
-            binding.txtSolarDate.text = event.solarDate
-            binding.txtLunarDate.text = event.lunarDate
-            binding.txtStatus.text = event.status
+            
+            val remainingDays = com.linhchay.thaphuonggiatien.utils.DateUtils.getRemainingDaysDescription(event.eventDate)
+            binding.txtStatus.apply {
+                text = remainingDays
+                visibility = android.view.View.VISIBLE
+            }
+            
+            // Hàm helper để lấy ngày/tháng (bỏ 0 ở đầu, bỏ năm, bỏ chữ bổ trợ)
+            fun getShortDate(date: String): String {
+                // Xóa các chữ như (Âm lịch), Âm...
+                val cleaned = date.replace(Regex("""(?i)\s*\(?Âm lịch\)?\s*"""), "")
+                    .replace(Regex("""(?i)\s*Âm\s*"""), "")
+                    .trim()
+                
+                // Tách lấy ngày/tháng/năm
+                val parts = cleaned.split("/")
+                return if (parts.size >= 2) {
+                    val day = parts[0].toIntOrNull()?.toString() ?: parts[0]
+                    val month = parts[1].toIntOrNull()?.toString() ?: parts[1]
+                    "$day/$month"
+                } else {
+                    cleaned
+                }
+            }
+            
+            val solarDisplay = getShortDate(event.solarDate)
+            val lunarDisplay = getShortDate(event.lunarDate)
+            
+            binding.txtSolarDate.text = "Dương: $solarDisplay - Âm: $lunarDisplay"
 
             if (showActions) {
                 binding.layoutActions.visibility = android.view.View.VISIBLE

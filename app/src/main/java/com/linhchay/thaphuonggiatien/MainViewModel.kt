@@ -5,6 +5,9 @@ import android.content.Context
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val sharedPref = application.getSharedPreferences("game_prefs", Context.MODE_PRIVATE)
@@ -27,8 +30,23 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
     
     fun addInitialGold() {
-        if (sharedPref.getInt("gold", 0) == 0) {
+        val isFirstLaunch = sharedPref.getBoolean("is_first_launch", true)
+        val lastLoginDate = sharedPref.getString("last_login_date", "")
+        val currentDate = SimpleDateFormat("yyyyMMdd", Locale.getDefault()).format(Date())
+
+        if (isFirstLaunch) {
+            // Lần đầu mở app: cộng 100 gold
             updateGold(100)
+            sharedPref.edit()
+                .putBoolean("is_first_launch", false)
+                .putString("last_login_date", currentDate)
+                .apply()
+        } else if (lastLoginDate != currentDate) {
+            // Mỗi ngày tiếp theo: cộng 30 gold
+            updateGold(30)
+            sharedPref.edit()
+                .putString("last_login_date", currentDate)
+                .apply()
         }
     }
 }

@@ -180,7 +180,12 @@ class AncestorViewModel(application: Application) : AndroidViewModel(application
             result.onSuccess { response ->
                 response?.let {
                     val solarDateStr = it.duongLich
-                    eventDao.updateEvent(tempEvent.copy(id = insertedId, solarDate = solarDateStr))
+                    val solarDate = parseDate(solarDateStr)
+                    eventDao.updateEvent(tempEvent.copy(
+                        id = insertedId, 
+                        solarDate = solarDateStr,
+                        eventDate = solarDate?.time ?: 0L
+                    ))
                 } ?: run {
                     eventDao.updateEvent(tempEvent.copy(id = insertedId, solarDate = "Đồng bộ sau"))
                     scheduleSyncWorker(insertedId, name, day, month, year)
@@ -213,7 +218,11 @@ class AncestorViewModel(application: Application) : AndroidViewModel(application
             result.onSuccess { response ->
                 response?.let {
                     val solarDateStr = it.duongLich
-                    eventDao.updateEvent(tempEvent.copy(solarDate = solarDateStr))
+                    val solarDate = parseDate(solarDateStr)
+                    eventDao.updateEvent(tempEvent.copy(
+                        solarDate = solarDateStr,
+                        eventDate = solarDate?.time ?: 0L
+                    ))
                 } ?: run {
                     eventDao.updateEvent(tempEvent.copy(solarDate = "Đồng bộ sau"))
                     scheduleSyncWorker(id, name, day, month, year)
@@ -298,6 +307,7 @@ class AncestorViewModel(application: Application) : AndroidViewModel(application
                         name = entity.name,
                         solarDate = entity.solarDate,
                         lunarDate = entity.lunarDate,
+                        eventDate = entity.eventDate,
                         status = calculateStatus(entity.solarDate, today)
                     )
                 }.sortedWith { e1, e2 ->

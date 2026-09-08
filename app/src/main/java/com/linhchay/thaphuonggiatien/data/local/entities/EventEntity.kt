@@ -9,5 +9,6 @@ data class EventEntity(
     val id: Int = 0,
     val name: String,
     val solarDate: String,
-    val lunarDate: String
+    val lunarDate: String,
+    val eventDate: Long = 0L
 )
