@@ -31,7 +31,7 @@
 
     <!-- Delete Button (Top Right Corner) -->
     <ImageView
-        android:id="@+id/btnDelete"
+        android:id="@+id/btnDeleteAltarItem"
         android:layout_width="16dp"
         android:layout_height="16dp"
         android:layout_gravity="top|end"

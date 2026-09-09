@@ -74,6 +74,8 @@ class AncestorFragment : Fragment() {
                 val burners = findBatHuongViews()
                 if (burners.isNotEmpty()) {
                     burners.forEach { startSmokeEffect(it) }
+                } else {
+                    startSmokeEffectCenter()
                 }
             } else {
                 removeSmokeEffect()
@@ -82,6 +84,10 @@ class AncestorFragment : Fragment() {
 
         viewModel.isEditMode.observe(viewLifecycleOwner) { isEdit ->
             updateEditUi(isEdit)
+        }
+
+        viewModel.placedItems.observe(viewLifecycleOwner) { items ->
+            refreshAltarItems(items)
         }
     }
 
@@ -95,6 +101,7 @@ class AncestorFragment : Fragment() {
     }
 
     private fun refreshAltarItems(items: List<AltarItem>) {
+        removeSmokeEffect()
         val childCount = binding.altarContainer.childCount
         if (childCount > 1) {
             binding.altarContainer.removeViews(1, childCount - 1)
@@ -103,13 +110,23 @@ class AncestorFragment : Fragment() {
         items.forEach { item ->
             addPlacedItemView(item, isEdit)
         }
+
+        // Re-trigger smoke if burning
+        if (viewModel.isBurning.value == true) {
+            val burners = findBatHuongViews()
+            if (burners.isNotEmpty()) {
+                burners.forEach { startSmokeEffect(it) }
+            } else {
+                startSmokeEffectCenter()
+            }
+        }
     }
 
     private fun addPlacedItemView(item: AltarItem, isEdit: Boolean) {
         val itemView = layoutInflater.inflate(R.layout.layout_altar_item_resizable, binding.altarContainer, false)
         val imgItem = itemView.findViewById<ImageView>(R.id.imgItem)
         val borderView = itemView.findViewById<View>(R.id.borderView)
-        val btnDelete = itemView.findViewById<View>(R.id.btnDelete)
+        val btnDelete = itemView.findViewById<View>(R.id.btnDeleteAltarItem)
         val handleBR = itemView.findViewById<View>(R.id.handleBottomRight)
 
         imgItem.setImageResource(item.imageResId)
@@ -140,7 +157,7 @@ class AncestorFragment : Fragment() {
 
     @SuppressLint("ClickableViewAccessibility")
     private fun setupResizeAndDrag(view: View, item: AltarItem) {
-        val btnDelete = view.findViewById<View>(R.id.btnDelete)
+        val btnDelete = view.findViewById<View>(R.id.btnDeleteAltarItem)
         val handleBR = view.findViewById<View>(R.id.handleBottomRight)
         
         var dX = 0f
@@ -190,7 +207,12 @@ class AncestorFragment : Fragment() {
 
         // Delete Logic
         btnDelete.setOnClickListener {
-            viewModel.removeItem(item.id)
+            showConfirmDialog(
+                title = "Xác nhận xoá",
+                message = "Bạn có chắc chắn muốn xoá vật phẩm này?"
+            ) {
+                viewModel.removeItem(item.id)
+            }
         }
 
         // Bottom Right Resize
@@ -229,14 +251,12 @@ class AncestorFragment : Fragment() {
                 showAddEventDialog(event)
             },
             onDeleteClick = { event ->
-                AlertDialog.Builder(requireContext())
-                    .setTitle("Xác nhận xoá")
-                    .setMessage("Bạn có chắc chắn muốn xoá ngày giỗ của ${event.name}?")
-                    .setPositiveButton("Xoá") { _, _ ->
-                        viewModel.deleteEvent(event.id)
-                    }
-                    .setNegativeButton("Hủy", null)
-                    .show()
+                showConfirmDialog(
+                    title = "Xác nhận xoá",
+                    message = "Bạn có chắc chắn muốn xoá ngày giỗ của ${event.name}?"
+                ) {
+                    viewModel.deleteEvent(event.id)
+                }
             }
         )
         binding.rvAnniversaries.adapter = adapter
@@ -421,6 +441,19 @@ class AncestorFragment : Fragment() {
         smokeViews.add(smoke)
     }
 
+    private fun startSmokeEffectCenter() {
+        val smoke = SmokeView(requireContext())
+        val smokeWidth = 300
+        val smokeHeight = 600
+        smoke.layoutParams = ViewGroup.LayoutParams(smokeWidth, smokeHeight)
+
+        smoke.x = binding.altarContainer.width / 2f - smokeWidth / 2f
+        smoke.y = binding.altarContainer.height * 0.7f - smokeHeight
+
+        binding.altarContainer.addView(smoke)
+        smokeViews.add(smoke)
+    }
+
     private fun removeSmokeEffect() {
         smokeViews.forEach {
             binding.altarContainer.removeView(it)
@@ -441,10 +474,10 @@ class AncestorFragment : Fragment() {
         init {
             // Tắt tăng tốc phần cứng để BlurMaskFilter hoạt động ổn định
             setLayerType(LAYER_TYPE_SOFTWARE, null)
-            paint.color = Color.WHITE
+            paint.color = Color.parseColor("#E0E0E0")
             paint.isAntiAlias = true
-            // Tạo độ nhòe cho hạt khói mờ ảo hơn (25f)
-            paint.maskFilter = BlurMaskFilter(25f, BlurMaskFilter.Blur.NORMAL)
+            // Tạo độ nhòe cho hạt khói mờ ảo hơn (15f)
+            paint.maskFilter = BlurMaskFilter(15f, BlurMaskFilter.Blur.NORMAL)
         }
 
         override fun onAttachedToWindow() {
@@ -492,10 +525,10 @@ class AncestorFragment : Fragment() {
                 // Hạt khói xuất phát ngẫu nhiên quanh tâm bát hương
                 x = width / 2f + (random.nextFloat() - 0.5f) * (width * 0.4f)
                 y = height * 0.9f
-                radius = 3 + random.nextFloat() * 5
+                radius = 5 + random.nextFloat() * 8
                 speedY = 0.8f + random.nextFloat() * 1.2f
                 speedX = (random.nextFloat() - 0.5f) * 0.3f
-                alpha = 80 + random.nextFloat() * 60 // Khói nhạt
+                alpha = 100 + random.nextFloat() * 80 // Khói rõ hơn
                 active = true
             }
 
@@ -715,6 +748,34 @@ class AncestorFragment : Fragment() {
                 }
                 dialog.dismiss()
             }
+        }
+
+        btnCancel.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialog.show()
+    }
+
+    private fun showConfirmDialog(title: String, message: String, onConfirm: () -> Unit) {
+        val dialogView = layoutInflater.inflate(R.layout.dialog_confirm, null)
+        val txtTitle = dialogView.findViewById<TextView>(R.id.txtTitle)
+        val txtMessage = dialogView.findViewById<TextView>(R.id.txtMessage)
+        val btnConfirm = dialogView.findViewById<View>(R.id.btnConfirm)
+        val btnCancel = dialogView.findViewById<View>(R.id.btnCancel)
+
+        txtTitle.text = title
+        txtMessage.text = message
+
+        val dialog = androidx.appcompat.app.AlertDialog.Builder(requireContext())
+            .setView(dialogView)
+            .create()
+
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+        btnConfirm.setOnClickListener {
+            onConfirm()
+            dialog.dismiss()
         }
 
         btnCancel.setOnClickListener {

@@ -161,6 +161,7 @@ class TempleAltarFragment : Fragment() {
     }
 
     private fun refreshAltarItems(items: List<AltarItem>) {
+        removeSmokeEffect()
         val childCount = binding.altarContainer.childCount
         if (childCount > 1) {
             binding.altarContainer.removeViews(1, childCount - 1)
@@ -169,13 +170,23 @@ class TempleAltarFragment : Fragment() {
         items.forEach { item ->
             addPlacedItemView(item, isEdit)
         }
+        
+        // Re-trigger smoke if burning
+        if (viewModel.isBurning.value == true) {
+            val burners = findBatHuongViews()
+            if (burners.isNotEmpty()) {
+                burners.forEach { startSmokeEffect(it) }
+            } else {
+                startSmokeEffectCenter()
+            }
+        }
     }
 
     private fun addPlacedItemView(item: AltarItem, isEdit: Boolean) {
         val itemView = layoutInflater.inflate(R.layout.layout_altar_item_resizable, binding.altarContainer, false)
         val imgItem = itemView.findViewById<ImageView>(R.id.imgItem)
         val borderView = itemView.findViewById<View>(R.id.borderView)
-        val btnDelete = itemView.findViewById<View>(R.id.btnDelete)
+        val btnDelete = itemView.findViewById<View>(R.id.btnDeleteAltarItem)
         val handleBR = itemView.findViewById<View>(R.id.handleBottomRight)
 
         imgItem.setImageResource(item.imageResId)
@@ -206,7 +217,7 @@ class TempleAltarFragment : Fragment() {
 
     @SuppressLint("ClickableViewAccessibility")
     private fun setupResizeAndDrag(view: View, item: AltarItem) {
-        val btnDelete = view.findViewById<View>(R.id.btnDelete)
+        val btnDelete = view.findViewById<View>(R.id.btnDeleteAltarItem)
         val handleBR = view.findViewById<View>(R.id.handleBottomRight)
         
         var dX = 0f
@@ -253,7 +264,12 @@ class TempleAltarFragment : Fragment() {
         }
 
         btnDelete.setOnClickListener {
-            viewModel.removeItem(item.id)
+            showConfirmDialog(
+                title = "Xác nhận xoá",
+                message = "Bạn có chắc chắn muốn xoá vật phẩm này?"
+            ) {
+                viewModel.removeItem(item.id)
+            }
         }
 
         handleBR.setOnTouchListener { _, event ->
@@ -573,9 +589,9 @@ class TempleAltarFragment : Fragment() {
 
         init {
             setLayerType(LAYER_TYPE_SOFTWARE, null)
-            paint.color = Color.WHITE
+            paint.color = Color.parseColor("#E0E0E0")
             paint.isAntiAlias = true
-            paint.maskFilter = BlurMaskFilter(25f, BlurMaskFilter.Blur.NORMAL)
+            paint.maskFilter = BlurMaskFilter(15f, BlurMaskFilter.Blur.NORMAL)
         }
 
         override fun onAttachedToWindow() {
@@ -621,10 +637,10 @@ class TempleAltarFragment : Fragment() {
             fun reset(width: Float, height: Float) {
                 x = width / 2f + (random.nextFloat() - 0.5f) * (width * 0.4f)
                 y = height * 0.9f
-                radius = 3 + random.nextFloat() * 5
+                radius = 5 + random.nextFloat() * 8
                 speedY = 0.8f + random.nextFloat() * 1.2f
                 speedX = (random.nextFloat() - 0.5f) * 0.3f
-                alpha = 80 + random.nextFloat() * 60
+                alpha = 100 + random.nextFloat() * 80
                 active = true
             }
 
@@ -636,6 +652,34 @@ class TempleAltarFragment : Fragment() {
                 speedX += (random.nextFloat() - 0.5f) * 0.05f
             }
         }
+    }
+
+    private fun showConfirmDialog(title: String, message: String, onConfirm: () -> Unit) {
+        val dialogView = layoutInflater.inflate(R.layout.dialog_confirm, null)
+        val txtTitle = dialogView.findViewById<TextView>(R.id.txtTitle)
+        val txtMessage = dialogView.findViewById<TextView>(R.id.txtMessage)
+        val btnConfirm = dialogView.findViewById<View>(R.id.btnConfirm)
+        val btnCancel = dialogView.findViewById<View>(R.id.btnCancel)
+
+        txtTitle.text = title
+        txtMessage.text = message
+
+        val dialog = androidx.appcompat.app.AlertDialog.Builder(requireContext())
+            .setView(dialogView)
+            .create()
+
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+        btnConfirm.setOnClickListener {
+            onConfirm()
+            dialog.dismiss()
+        }
+
+        btnCancel.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialog.show()
     }
 
     override fun onDestroyView() {
