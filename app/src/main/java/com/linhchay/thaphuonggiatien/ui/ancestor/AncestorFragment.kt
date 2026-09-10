@@ -127,9 +127,17 @@ class AncestorFragment : Fragment() {
         if (childCount > 1) {
             binding.altarContainer.removeViews(1, childCount - 1)
         }
+
+        val altarItem = items.find { it.type == "Bàn thờ" }
+        if (altarItem != null) {
+            binding.imgAltar.setImageResource(altarItem.imageResId)
+        }
+
         val isEdit = viewModel.isEditMode.value ?: false
         items.forEach { item ->
-            addPlacedItemView(item, isEdit)
+            if (item.type != "Bàn thờ") {
+                addPlacedItemView(item, isEdit)
+            }
         }
 
         // Re-trigger smoke if burning
@@ -629,6 +637,7 @@ class AncestorFragment : Fragment() {
         val layoutItemsContainer = dialogView.findViewById<LinearLayout>(R.id.layoutItemsContainer)
         val btnOk = dialogView.findViewById<View>(R.id.btnOk)
         val btnCancel = dialogView.findViewById<View>(R.id.btnCancel)
+        val txtError = dialogView.findViewById<TextView>(R.id.txtError)
 
         var selectedResId: Int? = null
         var selectedCategory: String? = null
@@ -657,6 +666,7 @@ class AncestorFragment : Fragment() {
                 val imgItem = itemView.findViewById<ImageView>(R.id.imgItem)
                 val priceLayout = itemView.findViewById<View>(R.id.priceLayout)
                 val txtPrice = itemView.findViewById<TextView>(R.id.txtPrice)
+                val imgGoldIcon = itemView.findViewById<ImageView>(R.id.imgGoldIcon)
                 val viewSelected = itemView.findViewById<View>(R.id.viewSelected)
                 
                 val isPurchased = item.imageResId in purchasedIds
@@ -665,11 +675,15 @@ class AncestorFragment : Fragment() {
                 
                 val price = if (isPurchased) 0 else item.price
                 
+                priceLayout.visibility = View.VISIBLE
                 if (isPurchased) {
-                    priceLayout.visibility = View.GONE
+                    imgGoldIcon.visibility = View.GONE
+                    txtPrice.text = "Đã mua"
+                    txtPrice.setTextColor(Color.GRAY)
                 } else {
-                    priceLayout.visibility = View.VISIBLE
+                    imgGoldIcon.visibility = View.VISIBLE
                     txtPrice.text = price.toString()
+                    txtPrice.setTextColor(Color.parseColor("#FFD700"))
                 }
                 
                 // Hiển thị highlight nếu đã chọn
@@ -679,6 +693,7 @@ class AncestorFragment : Fragment() {
                     selectedResId = item.imageResId
                     selectedCategory = categoryName
                     selectedPrice = price
+                    txtError.visibility = View.GONE
                     // Cập nhật lại UI để highlight
                     for (i in 0 until layoutItemsContainer.childCount) {
                         val child = layoutItemsContainer.getChildAt(i)
@@ -691,22 +706,25 @@ class AncestorFragment : Fragment() {
         }
 
         btnOk.setOnClickListener {
-            selectedResId?.let { resId ->
-                val newItem = AltarItem(
-                    id = System.currentTimeMillis(),
-                    type = selectedCategory ?: "",
-                    imageResId = resId,
-                    x = 300f,
-                    y = 400f,
-                    width = 250,
-                    height = 250,
-                    batHuongId = if (selectedCategory == "Bát hương") "batHuong_${System.currentTimeMillis()}" else null,
-                    price = selectedPrice
-                )
-                viewModel.addAltarItem(newItem)
-                dialog.dismiss()
-                enterEditMode()
+            val resId = selectedResId
+            if (resId == null) {
+                txtError.visibility = View.VISIBLE
+                return@setOnClickListener
             }
+            val newItem = AltarItem(
+                id = System.currentTimeMillis(),
+                type = selectedCategory ?: "",
+                imageResId = resId,
+                x = 300f,
+                y = 400f,
+                width = 250,
+                height = 250,
+                batHuongId = if (selectedCategory == "Bát hương") "batHuong_${System.currentTimeMillis()}" else null,
+                price = selectedPrice
+            )
+            viewModel.addAltarItem(newItem)
+            dialog.dismiss()
+            enterEditMode()
         }
 
         btnCancel.setOnClickListener {

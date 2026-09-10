@@ -348,6 +348,7 @@ class TempleAltarFragment : Fragment() {
         val dialogView = layoutInflater.inflate(R.layout.dialog_altar_items, null)
         val tabLayout = dialogView.findViewById<TabLayout>(R.id.tabLayoutCategories)
         val layoutItemsContainer = dialogView.findViewById<LinearLayout>(R.id.layoutItemsContainer)
+        val txtError = dialogView.findViewById<TextView>(R.id.txtError)
         val btnOk = dialogView.findViewById<View>(R.id.btnOk)
         val btnCancel = dialogView.findViewById<View>(R.id.btnCancel)
 
@@ -378,6 +379,7 @@ class TempleAltarFragment : Fragment() {
                 val imgItem = itemView.findViewById<ImageView>(R.id.imgItem)
                 val priceLayout = itemView.findViewById<View>(R.id.priceLayout)
                 val txtPrice = itemView.findViewById<TextView>(R.id.txtPrice)
+                val imgGoldIcon = itemView.findViewById<ImageView>(R.id.imgGoldIcon)
                 val viewSelected = itemView.findViewById<View>(R.id.viewSelected)
                 val isPurchased = resId in purchasedIds
                 
@@ -390,11 +392,15 @@ class TempleAltarFragment : Fragment() {
                     else -> 50
                 }
                 
+                priceLayout.visibility = View.VISIBLE
                 if (isPurchased) {
-                    priceLayout.visibility = View.GONE
+                    imgGoldIcon.visibility = View.GONE
+                    txtPrice.text = "Đã mua"
+                    txtPrice.setTextColor(Color.GRAY)
                 } else {
-                    priceLayout.visibility = View.VISIBLE
+                    imgGoldIcon.visibility = View.VISIBLE
                     txtPrice.text = price.toString()
+                    txtPrice.setTextColor(Color.parseColor("#FFD700"))
                 }
 
                 viewSelected.visibility = if (selectedResId == resId) View.VISIBLE else View.GONE
@@ -403,6 +409,7 @@ class TempleAltarFragment : Fragment() {
                     selectedResId = resId
                     selectedCategory = categoryName
                     selectedPrice = price
+                    txtError.visibility = View.GONE
                     for (i in 0 until layoutItemsContainer.childCount) {
                         layoutItemsContainer.getChildAt(i).findViewById<View>(R.id.viewSelected).visibility = View.GONE
                     }
@@ -413,22 +420,25 @@ class TempleAltarFragment : Fragment() {
         }
 
         btnOk.setOnClickListener {
-            selectedResId?.let { resId ->
-                val newItem = AltarItem(
-                    id = System.currentTimeMillis(),
-                    type = selectedCategory ?: "",
-                    imageResId = resId,
-                    x = 300f,
-                    y = 400f,
-                    width = 250,
-                    height = 250,
-                    batHuongId = if (selectedCategory == "Bát hương") "batHuong_${System.currentTimeMillis()}" else null,
-                    price = selectedPrice
-                )
-                viewModel.addAltarItem(newItem)
-                dialog.dismiss()
-                viewModel.setEditMode(true)
+            val resId = selectedResId
+            if (resId == null) {
+                txtError.visibility = View.VISIBLE
+                return@setOnClickListener
             }
+            val newItem = AltarItem(
+                id = System.currentTimeMillis(),
+                type = selectedCategory ?: "",
+                imageResId = resId,
+                x = 300f,
+                y = 400f,
+                width = 250,
+                height = 250,
+                batHuongId = if (selectedCategory == "Bát hương") "batHuong_${System.currentTimeMillis()}" else null,
+                price = selectedPrice
+            )
+            viewModel.addAltarItem(newItem)
+            dialog.dismiss()
+            viewModel.setEditMode(true)
         }
 
         btnCancel.setOnClickListener { dialog.dismiss() }

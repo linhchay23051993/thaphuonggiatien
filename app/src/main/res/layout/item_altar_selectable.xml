@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_margin="4dp"
@@ -7,47 +8,51 @@
 
     <View
         android:id="@+id/viewSelected"
-        android:layout_width="70dp"
-        android:layout_height="70dp"
+        android:layout_width="63dp"
+        android:layout_height="63dp"
         android:background="@drawable/bg_altar_item_border"
-        android:visibility="gone" />
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@id/imgItem"
+        app:layout_constraintEnd_toEndOf="@id/imgItem"
+        app:layout_constraintStart_toStartOf="@id/imgItem"
+        app:layout_constraintTop_toTopOf="@id/imgItem" />
+
+    <ImageView
+        android:id="@+id/imgItem"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_marginTop="1.5dp"
+        android:scaleType="centerInside"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <LinearLayout
+        android:id="@+id/priceLayout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
         android:gravity="center"
-        android:orientation="vertical"
-        android:padding="4dp">
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/imgItem">
 
         <ImageView
-            android:id="@+id/imgItem"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:scaleType="centerInside" />
+            android:id="@+id/imgGoldIcon"
+            android:layout_width="12dp"
+            android:layout_height="12dp"
+            android:src="@android:drawable/btn_star_big_on" />
 
-        <LinearLayout
-            android:id="@+id/priceLayout"
+        <TextView
+            android:id="@+id/txtPrice"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
-            android:gravity="center"
-            android:orientation="horizontal">
-
-            <ImageView
-                android:layout_width="12dp"
-                android:layout_height="12dp"
-                android:src="@android:drawable/btn_star_big_on" />
-
-            <TextView
-                android:id="@+id/txtPrice"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="2dp"
-                android:text="20"
-                android:textColor="#FFD700"
-                android:textSize="10sp"
-                android:textStyle="bold" />
-        </LinearLayout>
-
+            android:layout_marginStart="2dp"
+            android:text="20"
+            android:textColor="#FFD700"
+            android:textSize="10sp"
+            android:textStyle="bold" />
     </LinearLayout>
-</FrameLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
