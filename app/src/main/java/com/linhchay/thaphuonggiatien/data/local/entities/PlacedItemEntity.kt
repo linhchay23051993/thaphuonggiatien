@@ -14,5 +14,6 @@ data class PlacedItemEntity(
     val width: Int,
     val height: Int,
     val batHuongId: String? = null,
-    val price: Int
+    val price: Int,
+    val imageUri: String? = null
 )

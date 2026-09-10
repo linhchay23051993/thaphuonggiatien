@@ -353,7 +353,8 @@ class AncestorViewModel(application: Application) : AndroidViewModel(application
                         height = entity.height,
                         batHuongId = entity.batHuongId,
                         price = entity.price,
-                        isPurchased = true
+                        isPurchased = true,
+                        imageUri = entity.imageUri
                     )
                 }
                 savedItems = items
@@ -377,6 +378,15 @@ class AncestorViewModel(application: Application) : AndroidViewModel(application
             item.y = y
             item.width = width
             item.height = height
+            _placedItems.value = currentList
+        }
+    }
+
+    fun updateItemImage(itemId: Long, uri: String) {
+        val currentList = _placedItems.value?.toMutableList() ?: return
+        val index = currentList.indexOfFirst { it.id == itemId }
+        if (index != -1) {
+            currentList[index].imageUri = uri
             _placedItems.value = currentList
         }
     }
@@ -413,7 +423,8 @@ class AncestorViewModel(application: Application) : AndroidViewModel(application
                     width = item.width,
                     height = item.height,
                     batHuongId = item.batHuongId,
-                    price = item.price
+                    price = item.price,
+                    imageUri = item.imageUri
                 )
             }
             altarDao.updatePlacedItems(entities)

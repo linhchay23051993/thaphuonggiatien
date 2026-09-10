@@ -17,11 +17,13 @@ import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.bumptech.glide.Glide
 import com.google.android.material.tabs.TabLayout
 import com.linhchay.thaphuonggiatien.MainActivity
 import com.linhchay.thaphuonggiatien.MainViewModel
@@ -43,6 +45,25 @@ class AncestorFragment : Fragment() {
     private lateinit var viewModel: AncestorViewModel
     private val mainViewModel: MainViewModel by activityViewModels()
     private val smokeViews = mutableListOf<SmokeView>()
+    
+    private var currentEditingItemId: Long? = null
+    
+    private val pickImageLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+        uri?.let {
+            currentEditingItemId?.let { id ->
+                // Cấp quyền truy cập URI lâu dài nếu cần
+                try {
+                    requireContext().contentResolver.takePersistableUriPermission(
+                        it,
+                        android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION
+                    )
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+                viewModel.updateItemImage(id, it.toString())
+            }
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -128,8 +149,19 @@ class AncestorFragment : Fragment() {
         val borderView = itemView.findViewById<View>(R.id.borderView)
         val btnDelete = itemView.findViewById<View>(R.id.btnDeleteAltarItem)
         val handleBR = itemView.findViewById<View>(R.id.handleBottomRight)
+        val btnSelectPhoto = itemView.findViewById<View>(R.id.btnSelectPhoto)
+        val layoutPhotoContent = itemView.findViewById<View>(R.id.layoutPhotoContent)
+        val imgPhoto = itemView.findViewById<ImageView>(R.id.imgPhoto)
 
+        // Luôn hiển thị khung (hoặc vật phẩm) ở lớp dưới
         imgItem.setImageResource(item.imageResId)
+
+        if (item.type == "Khung ảnh" && item.imageUri != null) {
+            layoutPhotoContent.visibility = View.VISIBLE
+            Glide.with(this).load(item.imageUri).into(imgPhoto)
+        } else {
+            layoutPhotoContent.visibility = View.GONE
+        }
         
         val params = itemView.layoutParams
         params.width = item.width
@@ -144,11 +176,13 @@ class AncestorFragment : Fragment() {
             borderView.visibility = View.VISIBLE
             btnDelete.visibility = View.VISIBLE
             handleBR.visibility = View.VISIBLE
+            btnSelectPhoto.visibility = if (item.type == "Khung ảnh") View.VISIBLE else View.GONE
             setupResizeAndDrag(itemView, item)
         } else {
             borderView.visibility = View.GONE
             btnDelete.visibility = View.GONE
             handleBR.visibility = View.GONE
+            btnSelectPhoto.visibility = View.GONE
             itemView.setOnTouchListener(null)
         }
 
@@ -159,10 +193,16 @@ class AncestorFragment : Fragment() {
     private fun setupResizeAndDrag(view: View, item: AltarItem) {
         val btnDelete = view.findViewById<View>(R.id.btnDeleteAltarItem)
         val handleBR = view.findViewById<View>(R.id.handleBottomRight)
+        val btnSelectPhoto = view.findViewById<View>(R.id.btnSelectPhoto)
         
         var dX = 0f
         var dY = 0f
         val minSize = 100
+
+        btnSelectPhoto.setOnClickListener {
+            currentEditingItemId = item.id
+            pickImageLauncher.launch("image/*")
+        }
 
         // Drag logic (Main View)
         view.setOnTouchListener { v, event ->

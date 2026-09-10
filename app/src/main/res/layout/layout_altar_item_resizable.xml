@@ -14,6 +14,21 @@
         android:background="@drawable/bg_altar_item_border"
         android:visibility="gone" />
 
+    <!-- Photo container to sit behind the frame -->
+    <FrameLayout
+        android:id="@+id/layoutPhotoContent"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="12dp"
+        android:visibility="gone">
+
+        <ImageView
+            android:id="@+id/imgPhoto"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="fitXY" />
+    </FrameLayout>
+
     <ImageView
         android:id="@+id/imgItem"
         android:layout_width="match_parent"
@@ -38,6 +53,18 @@
         android:background="@drawable/bg_handle_delete"
         android:padding="4dp"
         android:src="@android:drawable/ic_menu_close_clear_cancel"
+        android:visibility="gone"
+        app:tint="@color/white" />
+
+    <!-- Photo Selection Button (Top Left Corner) -->
+    <ImageView
+        android:id="@+id/btnSelectPhoto"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_gravity="top|start"
+        android:background="@drawable/bg_handle_resize"
+        android:padding="4dp"
+        android:src="@android:drawable/ic_menu_gallery"
         android:visibility="gone"
         app:tint="@color/white" />
 

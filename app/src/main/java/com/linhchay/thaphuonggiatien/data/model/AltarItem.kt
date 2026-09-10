@@ -10,5 +10,6 @@ data class AltarItem(
     var height: Int = 200,
     var batHuongId: String? = null,
     val price: Int = 0,
-    var isPurchased: Boolean = false
+    var isPurchased: Boolean = false,
+    var imageUri: String? = null
 )

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Khi được focus -->
+    <item android:color="@color/ancient_brown_light" android:state_focused="true"/>
+    <!-- Khi bình thường (màu xám) -->
+    <item android:color="@color/border_gray_normal"/>
+</selector>
