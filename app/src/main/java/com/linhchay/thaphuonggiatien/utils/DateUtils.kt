@@ -21,21 +21,18 @@ object DateUtils {
         eventDate.set(Calendar.SECOND, 0)
         eventDate.set(Calendar.MILLISECOND, 0)
 
-        // Set event year to current year
+        // Set event year to current year to compare with today
         eventDate.set(Calendar.YEAR, now.get(Calendar.YEAR))
-
-        // If event date has passed this year, set it to next year
-        if (eventDate.before(now)) {
-            eventDate.add(Calendar.YEAR, 1)
-        }
 
         val diffInMillis = eventDate.timeInMillis - now.timeInMillis
         val diffInDays = TimeUnit.MILLISECONDS.toDays(diffInMillis)
 
         return when {
             diffInDays == 0L -> "Hôm nay"
-            diffInDays == 1L -> "Còn 1 ngày"
-            else -> "Còn $diffInDays ngày"
+            diffInDays > 0 -> {
+                if (diffInDays == 1L) "Còn 1 ngày" else "Còn $diffInDays ngày"
+            }
+            else -> "Đã qua"
         }
     }
 }

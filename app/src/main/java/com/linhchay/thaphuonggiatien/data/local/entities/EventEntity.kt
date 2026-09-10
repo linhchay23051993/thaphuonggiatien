@@ -10,5 +10,11 @@ data class EventEntity(
     val name: String,
     val solarDate: String,
     val lunarDate: String,
-    val eventDate: Long = 0L
-)
+    val eventDate: Long = 0L,
+    val type: String = TYPE_USER // "USER" or "SYSTEM"
+) {
+    companion object {
+        const val TYPE_USER = "USER"
+        const val TYPE_SYSTEM = "SYSTEM"
+    }
+}

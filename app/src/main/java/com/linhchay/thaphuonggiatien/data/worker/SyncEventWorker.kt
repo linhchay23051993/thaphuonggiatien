@@ -22,6 +22,8 @@ class SyncEventWorker(
         val month = inputData.getInt("month", -1)
         val year = inputData.getInt("year", -1)
 
+        val type = inputData.getString("type") ?: EventEntity.TYPE_USER
+
         if (day == -1 || month == -1 || year == -1) return ListenableWorker.Result.failure()
 
         val repository = LunarSolarRepository()
@@ -43,7 +45,8 @@ class SyncEventWorker(
                         name = name,
                         solarDate = solarDateStr,
                         lunarDate = "$day/$month/$year (Âm lịch)",
-                        eventDate = solarDate?.time ?: 0L
+                        eventDate = solarDate?.time ?: 0L,
+                        type = type
                     )
                     
                     if (eventId != -1) {

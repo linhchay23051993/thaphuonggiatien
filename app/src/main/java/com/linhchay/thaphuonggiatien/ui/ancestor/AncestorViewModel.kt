@@ -172,7 +172,8 @@ class AncestorViewModel(application: Application) : AndroidViewModel(application
             val tempEvent = EventEntity(
                 name = name,
                 solarDate = "Đang đồng bộ...",
-                lunarDate = "$day/$month/$year (Âm lịch)"
+                lunarDate = "$day/$month/$year (Âm lịch)",
+                type = EventEntity.TYPE_USER
             )
             val insertedId = eventDao.insertEvent(tempEvent).toInt()
 
@@ -188,11 +189,11 @@ class AncestorViewModel(application: Application) : AndroidViewModel(application
                     ))
                 } ?: run {
                     eventDao.updateEvent(tempEvent.copy(id = insertedId, solarDate = "Đồng bộ sau"))
-                    scheduleSyncWorker(insertedId, name, day, month, year)
+                    scheduleSyncWorker(insertedId, name, day, month, year, EventEntity.TYPE_USER)
                 }
             }.onFailure {
                 eventDao.updateEvent(tempEvent.copy(id = insertedId, solarDate = "Đồng bộ sau"))
-                scheduleSyncWorker(insertedId, name, day, month, year)
+                scheduleSyncWorker(insertedId, name, day, month, year, EventEntity.TYPE_USER)
             }
         }
     }
@@ -210,7 +211,8 @@ class AncestorViewModel(application: Application) : AndroidViewModel(application
                 id = id,
                 name = name,
                 solarDate = "Đang đồng bộ...",
-                lunarDate = "$day/$month/$year (Âm lịch)"
+                lunarDate = "$day/$month/$year (Âm lịch)",
+                type = EventEntity.TYPE_USER
             )
             eventDao.updateEvent(tempEvent)
 
@@ -225,22 +227,23 @@ class AncestorViewModel(application: Application) : AndroidViewModel(application
                     ))
                 } ?: run {
                     eventDao.updateEvent(tempEvent.copy(solarDate = "Đồng bộ sau"))
-                    scheduleSyncWorker(id, name, day, month, year)
+                    scheduleSyncWorker(id, name, day, month, year, EventEntity.TYPE_USER)
                 }
             }.onFailure {
                 eventDao.updateEvent(tempEvent.copy(solarDate = "Đồng bộ sau"))
-                scheduleSyncWorker(id, name, day, month, year)
+                scheduleSyncWorker(id, name, day, month, year, EventEntity.TYPE_USER)
             }
         }
     }
 
-    private fun scheduleSyncWorker(eventId: Int?, name: String, day: Int, month: Int, year: Int) {
+    private fun scheduleSyncWorker(eventId: Int?, name: String, day: Int, month: Int, year: Int, type: String) {
         val data = Data.Builder()
             .putInt("event_id", eventId ?: -1)
             .putString("name", name)
             .putInt("day", day)
             .putInt("month", month)
             .putInt("year", year)
+            .putString("type", type)
             .build()
 
         val constraints = Constraints.Builder()
@@ -293,47 +296,52 @@ class AncestorViewModel(application: Application) : AndroidViewModel(application
 
     private fun loadAnniversaries() {
         viewModelScope.launch {
-            eventDao.getAllEvents().collectLatest { entities ->
-                val today = Calendar.getInstance().apply {
+            eventDao.getEventsByType(EventEntity.TYPE_USER).collectLatest { entities ->
+                val now = Calendar.getInstance()
+                val currentYear = now.get(Calendar.YEAR)
+                val today = now.apply {
                     set(Calendar.HOUR_OF_DAY, 0)
                     set(Calendar.MINUTE, 0)
                     set(Calendar.SECOND, 0)
                     set(Calendar.MILLISECOND, 0)
                 }.timeInMillis
 
-                val events = entities.map { entity ->
-                    Event(
-                        id = entity.id,
-                        name = entity.name,
-                        solarDate = entity.solarDate,
-                        lunarDate = entity.lunarDate,
-                        eventDate = entity.eventDate,
-                        status = calculateStatus(entity.solarDate, today)
-                    )
-                }.sortedWith { e1, e2 ->
-                    val s1 = e1.solarDate == "Đang đồng bộ..." || e1.solarDate == "Đồng bộ sau"
-                    val s2 = e2.solarDate == "Đang đồng bộ..." || e2.solarDate == "Đồng bộ sau"
-
-                    if (s1 && !s2) return@sortedWith -1
-                    if (!s1 && s2) return@sortedWith 1
-                    if (s1 && s2) return@sortedWith e2.id.compareTo(e1.id)
-
-                    val t1 = parseDate(e1.solarDate)?.time ?: 0L
-                    val t2 = parseDate(e2.solarDate)?.time ?: 0L
-
-                    val diff1 = t1 - today
-                    val diff2 = t2 - today
-
-                    when {
-                        // Cả 2 đều chưa tới hoặc là hôm nay: Ngày gần hơn xếp trên (ASC)
-                        diff1 >= 0 && diff2 >= 0 -> diff1.compareTo(diff2)
-                        // Cả 2 đều đã qua: Ngày vừa qua (gần 0 hơn) xếp trên (DESC)
-                        diff1 < 0 && diff2 < 0 -> diff2.compareTo(diff1)
-                        // Ưu tiên ngày chưa tới lên trên
-                        diff1 >= 0 -> -1
-                        else -> 1
+                val events = entities
+                    .filter { entity ->
+                        if (entity.eventDate == 0L) return@filter true
+                        val eventCal = Calendar.getInstance().apply { timeInMillis = entity.eventDate }
+                        eventCal.get(Calendar.YEAR) == currentYear
                     }
-                }
+                    .map { entity ->
+                        Event(
+                            id = entity.id,
+                            name = entity.name,
+                            solarDate = entity.solarDate,
+                            lunarDate = entity.lunarDate,
+                            eventDate = entity.eventDate,
+                            status = calculateStatus(entity.solarDate, today)
+                        )
+                    }.sortedWith { e1, e2 ->
+                        val s1 = e1.solarDate == "Đang đồng bộ..." || e1.solarDate == "Đồng bộ sau"
+                        val s2 = e2.solarDate == "Đang đồng bộ..." || e2.solarDate == "Đồng bộ sau"
+
+                        if (s1 && !s2) return@sortedWith -1
+                        if (!s1 && s2) return@sortedWith 1
+                        if (s1 && s2) return@sortedWith e2.id.compareTo(e1.id)
+
+                        val isPassed1 = e1.eventDate < today
+                        val isPassed2 = e2.eventDate < today
+
+                        when {
+                            // Cả 2 đều chưa tới: Sắp xếp tăng dần theo ngày (sắp tới nhất lên đầu)
+                            !isPassed1 && !isPassed2 -> e1.eventDate.compareTo(e2.eventDate)
+                            // Cả 2 đều đã qua: Cho xuống cuối
+                            isPassed1 && isPassed2 -> e1.eventDate.compareTo(e2.eventDate)
+                            // Ưu tiên ngày chưa tới lên trên
+                            !isPassed1 && isPassed2 -> -1
+                            else -> 1
+                        }
+                    }
                 _anniversaries.postValue(events)
             }
         }

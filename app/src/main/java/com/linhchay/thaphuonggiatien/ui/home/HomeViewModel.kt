@@ -27,14 +27,30 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     private fun loadEvents() {
         viewModelScope.launch {
             eventDao.getAllEvents().collectLatest { entities ->
-                val today = Calendar.getInstance().apply {
+                val now = Calendar.getInstance()
+                val currentYear = now.get(Calendar.YEAR)
+                val today = now.apply {
                     set(Calendar.HOUR_OF_DAY, 0)
                     set(Calendar.MINUTE, 0)
                     set(Calendar.SECOND, 0)
                     set(Calendar.MILLISECOND, 0)
                 }.timeInMillis
 
-                val sortedEvents = entities.map { entity ->
+                val twoMonthsLater = Calendar.getInstance().apply {
+                    timeInMillis = today
+                    add(Calendar.MONTH, 2)
+                }.timeInMillis
+
+                val filteredEvents = entities.filter { entity ->
+                    // Giữ lại các mục đang đồng bộ để người dùng biết
+                    if (entity.eventDate == 0L) return@filter true
+                    
+                    val eventCal = Calendar.getInstance().apply { timeInMillis = entity.eventDate }
+                    val eventYear = eventCal.get(Calendar.YEAR)
+
+                    // Điều kiện: Trong năm hiện tại AND >= hôm nay AND <= 2 tháng tới
+                    eventYear == currentYear && entity.eventDate >= today && entity.eventDate <= twoMonthsLater
+                }.map { entity ->
                     Event(
                         id = entity.id,
                         name = entity.name,
@@ -49,25 +65,12 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
 
                     if (s1 && !s2) return@sortedWith -1
                     if (!s1 && s2) return@sortedWith 1
-                    if (s1 && s2) return@sortedWith e2.id.compareTo(e1.id) // Cái nào mới hơn (ID lớn hơn) thì lên trước
+                    if (s1 && s2) return@sortedWith e2.id.compareTo(e1.id)
 
-                    val t1 = parseDate(e1.solarDate)?.time ?: 0L
-                    val t2 = parseDate(e2.solarDate)?.time ?: 0L
-                    
-                    val diff1 = t1 - today
-                    val diff2 = t2 - today
-                    
-                    when {
-                        // Cả 2 đều chưa tới hoặc là hôm nay: Ngày gần hơn xếp trên (ASC)
-                        diff1 >= 0 && diff2 >= 0 -> diff1.compareTo(diff2)
-                        // Cả 2 đều đã qua: Ngày vừa qua (gần 0 hơn) xếp trên (DESC)
-                        diff1 < 0 && diff2 < 0 -> diff2.compareTo(diff1)
-                        // Ưu tiên ngày chưa tới lên trên
-                        diff1 >= 0 -> -1
-                        else -> 1
-                    }
+                    // Sắp xếp theo thời gian tăng dần (ngày gần nhất lên đầu)
+                    e1.eventDate.compareTo(e2.eventDate)
                 }
-                _events.postValue(sortedEvents)
+                _events.postValue(filteredEvents)
             }
         }
     }

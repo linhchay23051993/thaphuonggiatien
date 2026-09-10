@@ -6,5 +6,6 @@ data class Event(
     val solarDate: String,
     val lunarDate: String,
     val eventDate: Long = 0L,
+    val type: String = "",
     val status: String = ""
 )
