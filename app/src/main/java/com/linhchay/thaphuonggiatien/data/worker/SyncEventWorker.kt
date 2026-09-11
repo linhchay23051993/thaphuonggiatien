@@ -6,7 +6,7 @@ import androidx.work.WorkerParameters
 import androidx.work.ListenableWorker
 import com.linhchay.thaphuonggiatien.data.local.AppDatabase
 import com.linhchay.thaphuonggiatien.data.local.entities.EventEntity
-import com.linhchay.thaphuonggiatien.data.repository.LunarSolarRepository
+import com.linhchay.thaphuonggiatien.utils.LunarSolarConverter
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -26,43 +26,34 @@ class SyncEventWorker(
 
         if (day == -1 || month == -1 || year == -1) return ListenableWorker.Result.failure()
 
-        val repository = LunarSolarRepository()
         val eventDao = AppDatabase.getDatabase(applicationContext).eventDao()
 
         return try {
-            val result = repository.getLunarDate(day, month, year)
-            if (result.isSuccess) {
-                val response = result.getOrNull()
-                if (response != null) {
-                    val solarDateStr = response.duongLich
-                    val solarDate = try {
-                        SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).apply { isLenient = false }.parse(solarDateStr)
-                    } catch (e: Exception) {
-                        null
-                    }
-                    val eventEntity = EventEntity(
-                        id = if (eventId != -1) eventId else 0,
-                        name = name,
-                        solarDate = solarDateStr,
-                        lunarDate = "$day/$month/$year (Âm lịch)",
-                        eventDate = solarDate?.time ?: 0L,
-                        type = type
-                    )
-                    
-                    if (eventId != -1) {
-                        eventDao.updateEvent(eventEntity)
-                    } else {
-                        eventDao.insertEvent(eventEntity)
-                    }
-                    ListenableWorker.Result.success()
-                } else {
-                    ListenableWorker.Result.retry()
-                }
-            } else {
-                ListenableWorker.Result.retry()
+            // Chuyển đổi offline bằng thuật toán Hồ Ngọc Đức
+            val solarDate = LunarSolarConverter.convertLunar2Solar(day, month, year)
+            val solarDateStr = LunarSolarConverter.formatSolarDate(solarDate)
+            val solarDateParsed = try {
+                SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).apply { isLenient = false }.parse(solarDateStr)
+            } catch (e: Exception) {
+                null
             }
+            val eventEntity = EventEntity(
+                id = if (eventId != -1) eventId else 0,
+                name = name,
+                solarDate = solarDateStr,
+                lunarDate = "$day/$month/$year (Âm lịch)",
+                eventDate = solarDateParsed?.time ?: 0L,
+                type = type
+            )
+            
+            if (eventId != -1) {
+                eventDao.updateEvent(eventEntity)
+            } else {
+                eventDao.insertEvent(eventEntity)
+            }
+            ListenableWorker.Result.success()
         } catch (e: Exception) {
-            ListenableWorker.Result.retry()
+            ListenableWorker.Result.failure()
         }
     }
 }

@@ -19,6 +19,7 @@ import com.linhchay.thaphuonggiatien.data.model.Event
 import com.linhchay.thaphuonggiatien.data.model.Prayer
 import com.linhchay.thaphuonggiatien.data.repository.LunarSolarRepository
 import com.linhchay.thaphuonggiatien.data.worker.SyncEventWorker
+import com.linhchay.thaphuonggiatien.utils.LunarSolarConverter
 import androidx.work.Constraints
 import androidx.work.Data
 import androidx.work.NetworkType
@@ -169,31 +170,29 @@ class AncestorViewModel(application: Application) : AndroidViewModel(application
         val year = Calendar.getInstance().get(Calendar.YEAR)
 
         viewModelScope.launch {
-            val tempEvent = EventEntity(
-                name = name,
-                solarDate = "Đang đồng bộ...",
-                lunarDate = "$day/$month/$year (Âm lịch)",
-                type = EventEntity.TYPE_USER
-            )
-            val insertedId = eventDao.insertEvent(tempEvent).toInt()
+            try {
+                // Chuyển đổi offline bằng thuật toán Hồ Ngọc Đức
+                val solarDate = LunarSolarConverter.convertLunar2Solar(day, month, year)
+                val solarDateStr = LunarSolarConverter.formatSolarDate(solarDate)
+                val solarDateParsed = parseDate(solarDateStr)
 
-            val result = repository.getLunarDate(day, month, year)
-            result.onSuccess { response ->
-                response?.let {
-                    val solarDateStr = it.duongLich
-                    val solarDate = parseDate(solarDateStr)
-                    eventDao.updateEvent(tempEvent.copy(
-                        id = insertedId, 
-                        solarDate = solarDateStr,
-                        eventDate = solarDate?.time ?: 0L
-                    ))
-                } ?: run {
-                    eventDao.updateEvent(tempEvent.copy(id = insertedId, solarDate = "Đồng bộ sau"))
-                    scheduleSyncWorker(insertedId, name, day, month, year, EventEntity.TYPE_USER)
-                }
-            }.onFailure {
-                eventDao.updateEvent(tempEvent.copy(id = insertedId, solarDate = "Đồng bộ sau"))
-                scheduleSyncWorker(insertedId, name, day, month, year, EventEntity.TYPE_USER)
+                val eventEntity = EventEntity(
+                    name = name,
+                    solarDate = solarDateStr,
+                    lunarDate = "$day/$month/$year (Âm lịch)",
+                    eventDate = solarDateParsed?.time ?: 0L,
+                    type = EventEntity.TYPE_USER
+                )
+                eventDao.insertEvent(eventEntity)
+            } catch (e: Exception) {
+                // Fallback: lưu tạm nếu có lỗi bất ngờ
+                val tempEvent = EventEntity(
+                    name = name,
+                    solarDate = "Lỗi chuyển đổi",
+                    lunarDate = "$day/$month/$year (Âm lịch)",
+                    type = EventEntity.TYPE_USER
+                )
+                eventDao.insertEvent(tempEvent)
             }
         }
     }
@@ -207,31 +206,30 @@ class AncestorViewModel(application: Application) : AndroidViewModel(application
         val year = Calendar.getInstance().get(Calendar.YEAR)
 
         viewModelScope.launch {
-            val tempEvent = EventEntity(
-                id = id,
-                name = name,
-                solarDate = "Đang đồng bộ...",
-                lunarDate = "$day/$month/$year (Âm lịch)",
-                type = EventEntity.TYPE_USER
-            )
-            eventDao.updateEvent(tempEvent)
+            try {
+                // Chuyển đổi offline bằng thuật toán Hồ Ngọc Đức
+                val solarDate = LunarSolarConverter.convertLunar2Solar(day, month, year)
+                val solarDateStr = LunarSolarConverter.formatSolarDate(solarDate)
+                val solarDateParsed = parseDate(solarDateStr)
 
-            val result = repository.getLunarDate(day, month, year)
-            result.onSuccess { response ->
-                response?.let {
-                    val solarDateStr = it.duongLich
-                    val solarDate = parseDate(solarDateStr)
-                    eventDao.updateEvent(tempEvent.copy(
-                        solarDate = solarDateStr,
-                        eventDate = solarDate?.time ?: 0L
-                    ))
-                } ?: run {
-                    eventDao.updateEvent(tempEvent.copy(solarDate = "Đồng bộ sau"))
-                    scheduleSyncWorker(id, name, day, month, year, EventEntity.TYPE_USER)
-                }
-            }.onFailure {
-                eventDao.updateEvent(tempEvent.copy(solarDate = "Đồng bộ sau"))
-                scheduleSyncWorker(id, name, day, month, year, EventEntity.TYPE_USER)
+                val eventEntity = EventEntity(
+                    id = id,
+                    name = name,
+                    solarDate = solarDateStr,
+                    lunarDate = "$day/$month/$year (Âm lịch)",
+                    eventDate = solarDateParsed?.time ?: 0L,
+                    type = EventEntity.TYPE_USER
+                )
+                eventDao.updateEvent(eventEntity)
+            } catch (e: Exception) {
+                val tempEvent = EventEntity(
+                    id = id,
+                    name = name,
+                    solarDate = "Lỗi chuyển đổi",
+                    lunarDate = "$day/$month/$year (Âm lịch)",
+                    type = EventEntity.TYPE_USER
+                )
+                eventDao.updateEvent(tempEvent)
             }
         }
     }

@@ -6,14 +6,9 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import androidx.work.Constraints
-import androidx.work.Data
-import androidx.work.NetworkType
-import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.WorkManager
 import com.linhchay.thaphuonggiatien.data.local.AppDatabase
 import com.linhchay.thaphuonggiatien.data.local.entities.EventEntity
-import com.linhchay.thaphuonggiatien.data.worker.SyncEventWorker
+import com.linhchay.thaphuonggiatien.utils.LunarSolarConverter
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -83,37 +78,35 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             initialEvents.forEach { (info, type) ->
                 val (name, day, month) = info
-                val entity = EventEntity(
-                    name = name,
-                    solarDate = "Đang đồng bộ...",
-                    lunarDate = "$day/$month/$currentYear (Âm lịch)",
-                    type = type
-                )
-                val id = eventDao.insertEvent(entity).toInt()
-                scheduleSyncWorker(id, name, day, month, currentYear, type)
+                try {
+                    // Chuyển đổi offline bằng thuật toán Hồ Ngọc Đức
+                    val solarDate = LunarSolarConverter.convertLunar2Solar(day, month, currentYear)
+                    val solarDateStr = LunarSolarConverter.formatSolarDate(solarDate)
+                    val solarDateParsed = try {
+                        SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+                            .apply { isLenient = false }
+                            .parse(solarDateStr)
+                    } catch (e: Exception) {
+                        null
+                    }
+                    val entity = EventEntity(
+                        name = name,
+                        solarDate = solarDateStr,
+                        lunarDate = "$day/$month/$currentYear (Âm lịch)",
+                        eventDate = solarDateParsed?.time ?: 0L,
+                        type = type
+                    )
+                    eventDao.insertEvent(entity)
+                } catch (e: Exception) {
+                    val entity = EventEntity(
+                        name = name,
+                        solarDate = "Lỗi chuyển đổi",
+                        lunarDate = "$day/$month/$currentYear (Âm lịch)",
+                        type = type
+                    )
+                    eventDao.insertEvent(entity)
+                }
             }
         }
-    }
-
-    private fun scheduleSyncWorker(eventId: Int, name: String, day: Int, month: Int, year: Int, type: String) {
-        val data = Data.Builder()
-            .putInt("event_id", eventId)
-            .putString("name", name)
-            .putInt("day", day)
-            .putInt("month", month)
-            .putInt("year", year)
-            .putString("type", type)
-            .build()
-
-        val constraints = Constraints.Builder()
-            .setRequiredNetworkType(NetworkType.CONNECTED)
-            .build()
-
-        val syncRequest = OneTimeWorkRequestBuilder<SyncEventWorker>()
-            .setInputData(data)
-            .setConstraints(constraints)
-            .build()
-
-        WorkManager.getInstance(getApplication()).enqueue(syncRequest)
     }
 }
