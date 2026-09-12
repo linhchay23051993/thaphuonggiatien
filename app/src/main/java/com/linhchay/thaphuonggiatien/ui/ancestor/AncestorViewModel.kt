@@ -18,10 +18,12 @@ import com.linhchay.thaphuonggiatien.data.model.AltarItem
 import com.linhchay.thaphuonggiatien.data.model.Event
 import com.linhchay.thaphuonggiatien.data.model.Prayer
 import com.linhchay.thaphuonggiatien.data.repository.LunarSolarRepository
+import com.linhchay.thaphuonggiatien.data.worker.CleanupOfferingsWorker
 import com.linhchay.thaphuonggiatien.data.worker.SyncEventWorker
 import com.linhchay.thaphuonggiatien.utils.LunarSolarConverter
 import androidx.work.Constraints
 import androidx.work.Data
+import androidx.work.ExistingWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
@@ -348,7 +350,17 @@ class AncestorViewModel(application: Application) : AndroidViewModel(application
     private fun loadPlacedItemsFromDb() {
         viewModelScope.launch {
             altarDao.getAllPlacedItems().collectLatest { entities ->
-                val items = entities.map { entity ->
+                val now = System.currentTimeMillis()
+                val items = entities
+                    .filter { entity ->
+                        // Lọc bỏ lễ vật offering đã quá 24h
+                        if (entity.isOffering && entity.placedAt > 0) {
+                            (now - entity.placedAt) < CleanupOfferingsWorker.TWENTY_FOUR_HOURS_MILLIS
+                        } else {
+                            true
+                        }
+                    }
+                    .map { entity ->
                     AltarItem(
                         id = entity.originalId,
                         type = entity.type,
@@ -360,7 +372,9 @@ class AncestorViewModel(application: Application) : AndroidViewModel(application
                         batHuongId = entity.batHuongId,
                         price = entity.price,
                         isPurchased = true,
-                        imageUri = entity.imageUri
+                        imageUri = entity.imageUri,
+                        isOffering = entity.isOffering,
+                        placedAt = entity.placedAt
                     )
                 }
                 savedItems = items
@@ -433,14 +447,32 @@ class AncestorViewModel(application: Application) : AndroidViewModel(application
                     height = item.height,
                     batHuongId = item.batHuongId,
                     price = item.price,
-                    imageUri = item.imageUri
+                    imageUri = item.imageUri,
+                    isOffering = item.isOffering,
+                    placedAt = item.placedAt
                 )
             }
             altarDao.updatePlacedItems(entities)
             
             val purchasedEntities = currentItems.map { PurchasedItemEntity(it.imageResId) }
             altarDao.insertPurchasedItems(purchasedEntities)
+
+            // Lên lịch xoá lễ vật hết hạn sau 24h
+            scheduleOfferingCleanup()
         }
+    }
+
+    private fun scheduleOfferingCleanup() {
+        val cleanupRequest = OneTimeWorkRequestBuilder<CleanupOfferingsWorker>()
+            .setInitialDelay(24, TimeUnit.HOURS)
+            .build()
+
+        WorkManager.getInstance(getApplication())
+            .enqueueUniqueWork(
+                "cleanup_offerings",
+                ExistingWorkPolicy.REPLACE,
+                cleanupRequest
+            )
     }
 
     fun cancelChanges() {

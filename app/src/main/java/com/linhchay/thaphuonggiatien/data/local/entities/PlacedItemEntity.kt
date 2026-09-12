@@ -15,5 +15,7 @@ data class PlacedItemEntity(
     val height: Int,
     val batHuongId: String? = null,
     val price: Int,
-    val imageUri: String? = null
+    val imageUri: String? = null,
+    val isOffering: Boolean = false,
+    val placedAt: Long = 0L
 )

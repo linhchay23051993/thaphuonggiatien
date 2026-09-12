@@ -6,12 +6,17 @@ import android.os.CountDownTimer
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.work.ExistingWorkPolicy
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.linhchay.thaphuonggiatien.R
 import com.linhchay.thaphuonggiatien.data.model.AltarItem
 import com.linhchay.thaphuonggiatien.data.model.Temple
 import com.linhchay.thaphuonggiatien.data.model.Prayer
+import com.linhchay.thaphuonggiatien.data.worker.CleanupOfferingsWorker
+import java.util.concurrent.TimeUnit
 
 class TempleViewModel(application: Application) : AndroidViewModel(application) {
     private val sharedPrefs = application.getSharedPreferences("temple_altar_prefs", Context.MODE_PRIVATE)
@@ -71,7 +76,21 @@ class TempleViewModel(application: Application) : AndroidViewModel(application) 
         val json = sharedPrefs.getString("temple_items_$templeId", null)
         if (json != null) {
             val type = object : TypeToken<List<AltarItem>>() {}.type
-            _placedItems.value = gson.fromJson(json, type)
+            val allItems: List<AltarItem> = gson.fromJson(json, type)
+            val now = System.currentTimeMillis()
+            // Lọc bỏ lễ vật offering đã quá 24h
+            val filtered = allItems.filter { item ->
+                if (item.isOffering && item.placedAt > 0) {
+                    (now - item.placedAt) < CleanupOfferingsWorker.TWENTY_FOUR_HOURS_MILLIS
+                } else {
+                    true
+                }
+            }
+            _placedItems.value = filtered
+            // Cập nhật lại SharedPreferences nếu có item bị lọc
+            if (filtered.size != allItems.size) {
+                sharedPrefs.edit().putString("temple_items_$templeId", gson.toJson(filtered)).apply()
+            }
         } else {
             _placedItems.value = emptyList()
         }
@@ -134,7 +153,21 @@ class TempleViewModel(application: Application) : AndroidViewModel(application) 
         if (currentTempleId != -1) {
             savePlacedItems()
             savePurchasedItems()
+            scheduleOfferingCleanup()
         }
+    }
+
+    private fun scheduleOfferingCleanup() {
+        val cleanupRequest = OneTimeWorkRequestBuilder<CleanupOfferingsWorker>()
+            .setInitialDelay(24, TimeUnit.HOURS)
+            .build()
+
+        WorkManager.getInstance(getApplication())
+            .enqueueUniqueWork(
+                "cleanup_offerings",
+                ExistingWorkPolicy.REPLACE,
+                cleanupRequest
+            )
     }
 
     private fun savePlacedItems() {

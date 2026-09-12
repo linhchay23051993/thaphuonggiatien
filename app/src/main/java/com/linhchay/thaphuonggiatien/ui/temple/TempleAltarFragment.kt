@@ -434,7 +434,9 @@ class TempleAltarFragment : Fragment() {
                 width = 250,
                 height = 250,
                 batHuongId = if (selectedCategory == "Bát hương") "batHuong_${System.currentTimeMillis()}" else null,
-                price = selectedPrice
+                price = selectedPrice,
+                isOffering = onlyOfferings,
+                placedAt = if (onlyOfferings) System.currentTimeMillis() else 0L
             )
             viewModel.addAltarItem(newItem)
             dialog.dismiss()

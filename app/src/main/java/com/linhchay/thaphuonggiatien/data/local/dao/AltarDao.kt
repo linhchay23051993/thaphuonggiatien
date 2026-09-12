@@ -16,6 +16,9 @@ interface AltarDao {
     @Query("DELETE FROM placed_items")
     suspend fun deleteAllPlacedItems()
 
+    @Query("DELETE FROM placed_items WHERE isOffering = 1 AND placedAt > 0 AND placedAt < :expiryTime")
+    suspend fun deleteExpiredOfferings(expiryTime: Long)
+
     @Query("SELECT * FROM purchased_items")
     fun getAllPurchasedItems(): Flow<List<PurchasedItemEntity>>
 
