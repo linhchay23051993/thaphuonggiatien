@@ -1,6 +1,5 @@
 package com.linhchay.thaphuonggiatien.ui.profile
 
-import android.app.DatePickerDialog
 import android.content.Context
 import android.content.SharedPreferences
 import android.net.Uri
@@ -8,9 +7,13 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
+import android.widget.NumberPicker
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
+import android.app.Dialog
+import com.linhchay.thaphuonggiatien.R
 import com.linhchay.thaphuonggiatien.databinding.FragmentProfileBinding
 import com.linhchay.thaphuonggiatien.utils.ViewUtils
 import java.io.File
@@ -237,15 +240,75 @@ class ProfileFragment : Fragment() {
 
     private fun showDatePicker() {
         val calendar = Calendar.getInstance()
-        val year = calendar.get(Calendar.YEAR)
-        val month = calendar.get(Calendar.MONTH)
-        val day = calendar.get(Calendar.DAY_OF_MONTH)
 
-        DatePickerDialog(requireContext(), { _, selectedYear, selectedMonth, selectedDay ->
-            val birthDate = "$selectedDay/${selectedMonth + 1}/$selectedYear"
+        // Pre-fill từ giá trị đang hiển thị (nếu đã chọn ngày trước đó)
+        val currentText = binding.txtBirthDate.text.toString()
+        val parts = currentText.split("/")
+        if (parts.size == 3) {
+            try {
+                calendar.set(Calendar.DAY_OF_MONTH, parts[0].toInt())
+                calendar.set(Calendar.MONTH, parts[1].toInt() - 1)
+                calendar.set(Calendar.YEAR, parts[2].toInt())
+            } catch (_: Exception) { }
+        }
+
+        val dialog = Dialog(requireContext(), R.style.DatePickerDialogTheme)
+        val view = layoutInflater.inflate(R.layout.dialog_date_picker_scroll, null)
+        dialog.setContentView(view)
+
+        // Đặt width 90% màn hình, height tự co
+        val displayMetrics = resources.displayMetrics
+        val width = (displayMetrics.widthPixels * 0.90).toInt()
+        dialog.window?.setLayout(width, android.view.ViewGroup.LayoutParams.WRAP_CONTENT)
+
+        val pickerDay   = view.findViewById<NumberPicker>(R.id.pickerDay)
+        val pickerMonth = view.findViewById<NumberPicker>(R.id.pickerMonth)
+        val pickerYear  = view.findViewById<NumberPicker>(R.id.pickerYear)
+        val btnConfirm  = view.findViewById<Button>(R.id.btnConfirmDate)
+        val btnCancel   = view.findViewById<Button>(R.id.btnCancelDate)
+
+        // Cấu hình picker Ngày
+        pickerDay.minValue = 1
+        pickerDay.maxValue = 31
+        pickerDay.value = calendar.get(Calendar.DAY_OF_MONTH)
+
+        // Cấu hình picker Tháng (hiển thị tên tháng)
+        val monthNames = arrayOf(
+            "Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4",
+            "Tháng 5", "Tháng 6", "Tháng 7", "Tháng 8",
+            "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"
+        )
+        pickerMonth.minValue = 0
+        pickerMonth.maxValue = 11
+        pickerMonth.displayedValues = monthNames
+        pickerMonth.value = calendar.get(Calendar.MONTH)
+
+        // Cấu hình picker Năm (100 năm về trước đến năm hiện tại)
+        val currentYear = Calendar.getInstance().get(Calendar.YEAR)
+        pickerYear.minValue = currentYear - 100
+        pickerYear.maxValue = currentYear
+        pickerYear.value = calendar.get(Calendar.YEAR)
+
+        // Tắt bàn phím khi chạm vào picker
+        pickerDay.descendantFocusability   = NumberPicker.FOCUS_BLOCK_DESCENDANTS
+        pickerMonth.descendantFocusability = NumberPicker.FOCUS_BLOCK_DESCENDANTS
+        pickerYear.descendantFocusability  = NumberPicker.FOCUS_BLOCK_DESCENDANTS
+
+        btnConfirm.setOnClickListener {
+            val day   = pickerDay.value
+            val month = pickerMonth.value + 1  // +1 vì index bắt đầu từ 0
+            val year  = pickerYear.value
+            val birthDate = "$day/$month/$year"
             binding.txtBirthDate.text = birthDate
             updateDerivedInfo(birthDate)
-        }, year, month, day).show()
+            dialog.dismiss()
+        }
+
+        btnCancel.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialog.show()
     }
 
     private fun saveProfile() {

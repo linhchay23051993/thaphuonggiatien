@@ -1,5 +1,6 @@
 package com.linhchay.thaphuonggiatien.ui.home
 
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -42,12 +43,30 @@ class HomeFragment : Fragment() {
         return binding.root
     }
 
+    override fun onResume() {
+        super.onResume()
+        updateUserInfo()
+    }
+
     private fun updateUserInfo() {
         val context = context ?: return
         val sharedPref = context.getSharedPreferences("user_profile", android.content.Context.MODE_PRIVATE)
         val name = sharedPref.getString("name", "")
-        
+        val avatarUriString = sharedPref.getString("avatar_uri", null)
+
         binding.txtUserName.text = if (name.isNullOrEmpty()) "Hello" else "Hello, $name"
+
+        // Load avatar
+        if (!avatarUriString.isNullOrEmpty()) {
+            try {
+                val uri = Uri.parse(avatarUriString)
+                binding.imgAvatar.setImageURI(uri)
+            } catch (e: Exception) {
+                binding.imgAvatar.setImageResource(R.drawable.ic_user_placeholder)
+            }
+        } else {
+            binding.imgAvatar.setImageResource(R.drawable.ic_user_placeholder)
+        }
 
         val calendar = Calendar.getInstance()
         val localeVi = Locale("vi", "VN")

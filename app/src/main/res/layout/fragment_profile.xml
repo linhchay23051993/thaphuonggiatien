@@ -173,6 +173,7 @@
                         android:background="?attr/selectableItemBackground"
                         android:clickable="false"
                         android:hint="Chọn ngày sinh"
+                        android:textColorHint="#9E9E9E"
                         android:paddingVertical="16dp"
                         android:textColor="#5D4037"
                         android:textSize="16sp" />
