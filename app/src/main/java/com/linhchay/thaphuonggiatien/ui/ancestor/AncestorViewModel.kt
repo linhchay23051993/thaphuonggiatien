@@ -310,7 +310,10 @@ class AncestorViewModel(application: Application) : AndroidViewModel(application
                     .filter { entity ->
                         if (entity.eventDate == 0L) return@filter true
                         val eventCal = Calendar.getInstance().apply { timeInMillis = entity.eventDate }
-                        eventCal.get(Calendar.YEAR) == currentYear
+                        val eventYear = eventCal.get(Calendar.YEAR)
+                        // Tháng 11, 12 âm lịch chuyển sang dương lịch có thể rơi vào đầu năm sau
+                        // Nên cần hiển thị cả sự kiện thuộc năm hiện tại và năm kế tiếp
+                        eventYear == currentYear || eventYear == currentYear + 1
                     }
                     .map { entity ->
                         Event(
