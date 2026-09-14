@@ -39,33 +39,70 @@
                     android:clipToOutline="true"
                     android:contentDescription="Ảnh đại diện" />
 
-                <TextView
-                    android:id="@+id/txtUserName"
+                <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:textColor="@color/black"
-                    android:text="Xin chào, Linh"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
+                    android:orientation="vertical">
 
-                <TextView
-                    android:id="@+id/txtDayOfWeek"
+                    <TextView
+                        android:id="@+id/txtGreeting"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Xin chào!"
+                        android:textColor="@color/black"
+                        android:textSize="15sp" />
+
+                    <TextView
+                        android:id="@+id/txtUserName"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/black"
+                        android:text="Linh"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="4dp"
-                    android:text="Thứ Ba"
-                    android:textColor="@color/black"
-                    android:textSize="13sp"
-                    android:textStyle="bold" />
+                    android:orientation="vertical"
+                    android:gravity="end">
 
-                <TextView
-                    android:id="@+id/txtDate"
-                    android:textColor="@color/black"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="20/08/2026"
-                    android:textSize="13sp" />
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <TextView
+                            android:id="@+id/txtDayOfWeek"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="4dp"
+                            android:text="Thứ Ba"
+                            android:textColor="@color/black"
+                            android:textSize="13sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/txtDate"
+                            android:textColor="@color/black"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="20/08/2026"
+                            android:textSize="13sp" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/txtLunarDate"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Âm lịch: 07/07"
+                        android:textColor="#F44336"
+                        android:textSize="13sp"
+                        android:gravity="end" />
+                </LinearLayout>
             </LinearLayout>
 
             <include

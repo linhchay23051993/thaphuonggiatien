@@ -54,7 +54,9 @@ class HomeFragment : Fragment() {
         val name = sharedPref.getString("name", "")
         val avatarUriString = sharedPref.getString("avatar_uri", null)
 
-        binding.txtUserName.text = if (name.isNullOrEmpty()) "Hello" else "Hello, $name"
+        // Greeting always "Xin chào!", name on line below
+        binding.txtGreeting.text = "Xin chào!"
+        binding.txtUserName.text = if (name.isNullOrEmpty()) "" else name
 
         // Load avatar
         if (!avatarUriString.isNullOrEmpty()) {
@@ -74,8 +76,16 @@ class HomeFragment : Fragment() {
         val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
 
         val dayOfWeek = dayOfWeekFormat.format(calendar.time).replaceFirstChar { it.uppercase() }
-        binding.txtDayOfWeek.text = dayOfWeek
+        binding.txtDayOfWeek.text = "$dayOfWeek,"
         binding.txtDate.text = dateFormat.format(calendar.time)
+
+        // Âm lịch
+        val day = calendar.get(Calendar.DAY_OF_MONTH)
+        val month = calendar.get(Calendar.MONTH) + 1
+        val year = calendar.get(Calendar.YEAR)
+        val lunar = com.linhchay.thaphuonggiatien.utils.LunarSolarConverter.convertSolar2Lunar(day, month, year)
+        val leapStr = if (lunar.isLeapMonth) " (Nhuận)" else ""
+        binding.txtLunarDate.text = "Âm lịch: %02d/%02d%s".format(lunar.day, lunar.month, leapStr)
     }
 
     private fun setupGoldObserver() {
