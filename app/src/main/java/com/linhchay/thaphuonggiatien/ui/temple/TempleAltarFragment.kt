@@ -425,14 +425,15 @@ class TempleAltarFragment : Fragment() {
                 txtError.visibility = View.VISIBLE
                 return@setOnClickListener
             }
+            val (initW, initH) = calcInitialSizePx(resId)
             val newItem = AltarItem(
                 id = System.currentTimeMillis(),
                 type = selectedCategory ?: "",
                 imageResId = resId,
                 x = 300f,
                 y = 400f,
-                width = 250,
-                height = 250,
+                width = initW,
+                height = initH,
                 batHuongId = if (selectedCategory == "Bát hương") "batHuong_${System.currentTimeMillis()}" else null,
                 price = selectedPrice,
                 isOffering = onlyOfferings,
@@ -692,6 +693,32 @@ class TempleAltarFragment : Fragment() {
         }
 
         dialog.show()
+    }
+
+    /**
+     * Tính kích thước ban đầu (pixels) của item theo tỉ lệ ảnh.
+     * Max width = 60dp, max height = 60dp.
+     * Chiều còn lại co giãn theo tỉ lệ ảnh.
+     */
+    private fun calcInitialSizePx(resId: Int): Pair<Int, Int> {
+        val density = resources.displayMetrics.density
+        val maxPx = (80 * density).toInt()
+
+        val drawable = resources.getDrawable(resId, requireContext().theme)
+        val imgW = drawable.intrinsicWidth.takeIf { it > 0 } ?: maxPx
+        val imgH = drawable.intrinsicHeight.takeIf { it > 0 } ?: maxPx
+
+        return if (imgW >= imgH) {
+            // Chiều rộng là cạnh dài -> giới hạn width = maxPx, height co theo tỉ lệ
+            val w = maxPx
+            val h = (maxPx * imgH.toFloat() / imgW).toInt().coerceAtLeast(1)
+            Pair(w, h)
+        } else {
+            // Chiều cao là cạnh dài -> giới hạn height = maxPx, width co theo tỉ lệ
+            val h = maxPx
+            val w = (maxPx * imgW.toFloat() / imgH).toInt().coerceAtLeast(1)
+            Pair(w, h)
+        }
     }
 
     override fun onDestroyView() {
