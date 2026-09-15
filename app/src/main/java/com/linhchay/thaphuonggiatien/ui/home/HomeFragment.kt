@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.linhchay.thaphuonggiatien.MainViewModel
 import com.linhchay.thaphuonggiatien.R
@@ -101,6 +102,10 @@ class HomeFragment : Fragment() {
         
         binding.cardDangLe.setOnClickListener {
             requireActivity().findViewById<BottomNavigationView>(R.id.nav_view)?.selectedItemId = R.id.navigation_temple
+        }
+
+        binding.btnViewAll.setOnClickListener {
+            findNavController().navigate(R.id.action_home_to_allEvents)
         }
     }
 
