@@ -1,0 +1,20 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- Nén hương -->
+    <path
+        android:fillColor="#8B4513"
+        android:pathData="M11,10 h2 v14 h-2 z" />
+    <!-- Đốm lửa -->
+    <path
+        android:fillColor="#FF5722"
+        android:pathData="M12,4 a2,2 0 1,0 0,4 a2,2 0 1,0 0,-4 z" />
+    <!-- Khói lượn -->
+    <path
+        android:strokeColor="#BDBDBD"
+        android:strokeWidth="1.5"
+        android:fillColor="#00000000"
+        android:pathData="M12,4 Q10,2 12,0" />
+</vector>

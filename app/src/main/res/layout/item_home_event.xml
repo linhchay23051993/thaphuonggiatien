@@ -59,13 +59,19 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
+            android:background="@drawable/bg_badge_red"
+            android:paddingStart="6dp"
+            android:paddingEnd="6dp"
+            android:paddingTop="2dp"
+            android:paddingBottom="2dp"
             android:text="còn 5 ngày"
-            android:textColor="#D32F2F"
-            android:textSize="12sp"
-            android:textStyle="normal"
-            app:layout_constraintBaseline_toBaselineOf="@+id/txtEventName"
+            android:textColor="#C2185B"
+            android:textSize="11sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="@+id/txtEventName"
             app:layout_constraintEnd_toStartOf="@+id/layoutActions"
-            app:layout_constraintStart_toEndOf="@+id/txtEventName" />
+            app:layout_constraintStart_toEndOf="@+id/txtEventName"
+            app:layout_constraintTop_toTopOf="@+id/txtEventName" />
 
         <TextView
             android:id="@+id/txtSolarDate"
@@ -92,26 +98,27 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
+            android:gravity="center_vertical"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
             <ImageView
                 android:id="@+id/btnEdit"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:layout_marginEnd="8dp"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:layout_marginEnd="12dp"
                 android:src="@android:drawable/ic_menu_edit"
                 android:contentDescription="Sửa"
-                app:tint="#8B4513" />
+                app:tint="#8D6E63" />
 
             <ImageView
                 android:id="@+id/btnDelete"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
                 android:src="@android:drawable/ic_menu_delete"
                 android:contentDescription="Xoá"
-                app:tint="#D32F2F" />
+                app:tint="#8D6E63" />
         </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.cardview.widget.CardView>
