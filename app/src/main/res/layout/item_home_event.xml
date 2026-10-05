@@ -29,9 +29,8 @@
             android:layout_width="32dp"
             android:layout_height="32dp"
             android:layout_marginStart="12dp"
-            android:src="@drawable/ic_event_placeholder"
+            android:src="@drawable/lehoi"
             android:contentDescription="Icon"
-            app:tint="#8B4513"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@id/viewAccent"
             app:layout_constraintTop_toTopOf="parent" />

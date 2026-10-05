@@ -73,7 +73,7 @@ class AncestorViewModel(application: Application) : AndroidViewModel(application
     val allCategories = listOf(
         "Bàn thờ" to listOf(
             AltarItem(id = 101, type = "Bàn thờ", imageResId = R.drawable.ban_tho_1, price = 10),
-            AltarItem(id = 102, type = "Bàn thờ", imageResId = R.drawable.ban_tho_6, price = 20),
+            AltarItem(id = 102, type = "Bàn thờ", imageResId = R.drawable.ban_tho_2, price = 20),
             AltarItem(id = 103, type = "Bàn thờ", imageResId = R.drawable.ban_tho_3, price = 30),
             AltarItem(id = 104, type = "Bàn thờ", imageResId = R.drawable.ban_tho_4, price = 40),
             AltarItem(id = 105, type = "Bàn thờ", imageResId = R.drawable.ban_tho_6, price = 50)
