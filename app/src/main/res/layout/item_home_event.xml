@@ -35,6 +35,10 @@
             app:layout_constraintStart_toEndOf="@id/viewAccent"
             app:layout_constraintTop_toTopOf="parent" />
 
+        <!--
+            txtEventName + txtStatus tạo thành horizontal chain.
+            Khi txtStatus GONE (màn Home), txtEventName tự mở rộng đến layoutEnd.
+        -->
         <TextView
             android:id="@+id/txtEventName"
             android:layout_width="wrap_content"
@@ -53,6 +57,7 @@
             app:layout_constraintStart_toEndOf="@id/imgEventIcon"
             app:layout_constraintTop_toTopOf="parent" />
 
+        <!-- Badge ngày còn lại: hiển thị cạnh tên (AllEvents). GONE ở Home. -->
         <TextView
             android:id="@+id/txtStatus"
             android:layout_width="wrap_content"
@@ -68,7 +73,7 @@
             android:textSize="11sp"
             android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="@+id/txtEventName"
-            app:layout_constraintEnd_toStartOf="@+id/layoutActions"
+            app:layout_constraintEnd_toStartOf="@+id/layoutEnd"
             app:layout_constraintStart_toEndOf="@+id/txtEventName"
             app:layout_constraintTop_toTopOf="@+id/txtEventName" />
 
@@ -80,7 +85,7 @@
             android:text="Dương: 4/6 - Âm: 5/6"
             android:textColor="#5D4037"
             android:textSize="12sp"
-            app:layout_constraintEnd_toStartOf="@+id/layoutActions"
+            app:layout_constraintEnd_toStartOf="@+id/layoutEnd"
             app:layout_constraintStart_toStartOf="@+id/txtEventName"
             app:layout_constraintTop_toBottomOf="@+id/txtEventName" />
 
@@ -90,34 +95,85 @@
             android:layout_height="0dp"
             android:visibility="gone"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>
+            app:layout_constraintTop_toTopOf="parent" />
 
+        <!--
+            Container bên phải (center-right).
+            Chứa cả badge+arrow (Home) lẫn edit+delete (AllEvents).
+            Chỉ hiện một nhóm tại một thời điểm.
+        -->
         <LinearLayout
-            android:id="@+id/layoutActions"
+            android:id="@+id/layoutEnd"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
             android:gravity="center_vertical"
+            android:orientation="horizontal"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
-            <ImageView
-                android:id="@+id/btnEdit"
-                android:layout_width="28dp"
-                android:layout_height="28dp"
-                android:layout_marginEnd="12dp"
-                android:src="@android:drawable/ic_menu_edit"
-                android:contentDescription="Sửa"
-                app:tint="#8D6E63" />
+            <!-- Nhóm Home: badge đếm ngày + mũi tên -->
+            <LinearLayout
+                android:id="@+id/layoutBadge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:visibility="gone">
 
-            <ImageView
-                android:id="@+id/btnDelete"
-                android:layout_width="28dp"
-                android:layout_height="28dp"
-                android:src="@android:drawable/ic_menu_delete"
-                android:contentDescription="Xoá"
-                app:tint="#8D6E63" />
+                <TextView
+                    android:id="@+id/txtBadge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_badge_red"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp"
+                    android:paddingTop="4dp"
+                    android:paddingBottom="4dp"
+                    android:text="còn 5 ngày"
+                    android:textColor="#C2185B"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+
+                <ImageView
+                    android:id="@+id/imgArrow"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_marginStart="2dp"
+                    android:contentDescription="@null"
+                    android:src="@drawable/ic_arrow_right"
+                    app:tint="#8D6E63" />
+            </LinearLayout>
+
+            <!-- Nhóm AllEvents: nút edit + delete -->
+            <LinearLayout
+                android:id="@+id/layoutActions"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:visibility="gone">
+
+                <ImageView
+                    android:id="@+id/btnEdit"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:layout_marginEnd="12dp"
+                    android:contentDescription="Sửa"
+                    android:src="@android:drawable/ic_menu_edit"
+                    app:tint="#8D6E63" />
+
+                <ImageView
+                    android:id="@+id/btnDelete"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:contentDescription="Xoá"
+                    android:src="@android:drawable/ic_menu_delete"
+                    app:tint="#8D6E63" />
+            </LinearLayout>
+
         </LinearLayout>
+
     </androidx.constraintlayout.widget.ConstraintLayout>
+
 </androidx.cardview.widget.CardView>

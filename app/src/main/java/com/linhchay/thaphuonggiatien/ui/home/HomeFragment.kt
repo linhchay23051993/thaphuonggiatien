@@ -55,9 +55,8 @@ class HomeFragment : Fragment() {
         val name = sharedPref.getString("name", "")
         val avatarUriString = sharedPref.getString("avatar_uri", null)
 
-        // Greeting always "Xin chào!", name on line below
-        binding.txtGreeting.text = "Xin chào!"
-        binding.txtUserName.text = if (name.isNullOrEmpty()) "" else name
+        // Gộp greeting + name: nếu có tên thì hiện tên, không thì "Xin chào!!!"
+        binding.txtGreeting.text = if (name.isNullOrEmpty()) "Xin chào!!!" else name
 
         // Load avatar
         if (!avatarUriString.isNullOrEmpty()) {
@@ -96,6 +95,10 @@ class HomeFragment : Fragment() {
     }
 
     private fun setupClickListeners() {
+        binding.cardThapHuongNgay.setOnClickListener {
+            requireActivity().findViewById<BottomNavigationView>(R.id.nav_view)?.selectedItemId = R.id.navigation_ancestor
+        }
+
         binding.cardBanThoGiaTien.setOnClickListener {
             requireActivity().findViewById<BottomNavigationView>(R.id.nav_view)?.selectedItemId = R.id.navigation_ancestor
         }

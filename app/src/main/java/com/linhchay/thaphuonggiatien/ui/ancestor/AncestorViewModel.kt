@@ -117,6 +117,12 @@ class AncestorViewModel(application: Application) : AndroidViewModel(application
             AltarItem(id = 603, type = "Chén rượu", imageResId = R.drawable.chen_3, price = 10),
             AltarItem(id = 604, type = "Chén rượu", imageResId = R.drawable.chen_4, price = 55),
             AltarItem(id = 605, type = "Chén rượu", imageResId = R.drawable.chen_5, price = 10)
+        ),
+        "Nến" to listOf(
+            AltarItem(id = 701, type = "Nến", imageResId = R.drawable.nen_0, price = 10),
+            AltarItem(id = 702, type = "Nến", imageResId = R.drawable.nen_1, price = 20),
+            AltarItem(id = 703, type = "Nến", imageResId = R.drawable.nen_2, price = 10),
+            AltarItem(id = 704, type = "Nến", imageResId = R.drawable.nen_3, price = 55)
         )
     )
 
@@ -322,7 +328,8 @@ class AncestorViewModel(application: Application) : AndroidViewModel(application
                             solarDate = entity.solarDate,
                             lunarDate = entity.lunarDate,
                             eventDate = entity.eventDate,
-                            status = calculateStatus(entity.solarDate, today)
+                            status = calculateStatus(entity.solarDate, today),
+                            iconType = entity.iconType
                         )
                     }.sortedWith { e1, e2 ->
                         val s1 = e1.solarDate == "Đang đồng bộ..." || e1.solarDate == "Đồng bộ sau"

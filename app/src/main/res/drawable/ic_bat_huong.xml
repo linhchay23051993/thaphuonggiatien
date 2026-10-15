@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+
+    <!-- Khói 1 (giữa) -->
+    <path
+        android:strokeColor="#A0918A"
+        android:strokeWidth="1.5"
+        android:fillColor="#00000000"
+        android:strokeLineCap="round"
+        android:pathData="M24,14 Q22,11 24,8 Q26,5 24,2" />
+
+    <!-- Khói 2 (trái) -->
+    <path
+        android:strokeColor="#A0918A"
+        android:strokeWidth="1.2"
+        android:fillColor="#00000000"
+        android:strokeLineCap="round"
+        android:pathData="M20,16 Q18,13 20,10 Q22,7 20,4" />
+
+    <!-- Khói 3 (phải) -->
+    <path
+        android:strokeColor="#A0918A"
+        android:strokeWidth="1.2"
+        android:fillColor="#00000000"
+        android:strokeLineCap="round"
+        android:pathData="M28,16 Q30,13 28,10 Q26,7 28,4" />
+
+    <!-- Thân nén hương giữa -->
+    <path
+        android:fillColor="#C0392B"
+        android:pathData="M23,14 h2 v14 h-2 z" />
+
+    <!-- Thân nén hương trái -->
+    <path
+        android:fillColor="#C0392B"
+        android:pathData="M19,16 h1.5 v13 h-1.5 z" />
+
+    <!-- Thân nén hương phải -->
+    <path
+        android:fillColor="#C0392B"
+        android:pathData="M27.5,16 h1.5 v13 h-1.5 z" />
+
+    <!-- Bát hương - thân trên -->
+    <path
+        android:fillColor="#B5874A"
+        android:pathData="M14,28 Q14,26 24,26 Q34,26 34,28 L32,36 Q32,38 24,38 Q16,38 16,36 Z" />
+
+    <!-- Bát hương - viền miệng -->
+    <path
+        android:fillColor="#D4A55A"
+        android:pathData="M13,27 Q13,25 24,25 Q35,25 35,27 Q35,29 24,29 Q13,29 13,27 Z" />
+
+    <!-- Bát hương - đế -->
+    <path
+        android:fillColor="#9A6B2E"
+        android:pathData="M18,37 Q18,40 24,40 Q30,40 30,37 Q30,38.5 24,38.5 Q18,38.5 18,37 Z" />
+
+    <!-- Đế đứng -->
+    <path
+        android:fillColor="#B5874A"
+        android:pathData="M20,38 h8 v2 h-8 z" />
+
+    <!-- Đế ngang dưới -->
+    <path
+        android:fillColor="#9A6B2E"
+        android:pathData="M17,40 h14 v2 h-14 z" />
+
+    <!-- Hoa văn bát -->
+    <path
+        android:strokeColor="#D4A55A"
+        android:strokeWidth="1"
+        android:fillColor="#00000000"
+        android:pathData="M18,32 Q24,30 30,32" />
+
+</vector>

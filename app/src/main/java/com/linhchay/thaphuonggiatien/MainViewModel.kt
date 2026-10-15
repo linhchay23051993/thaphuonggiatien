@@ -43,7 +43,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
         if (isFirstLaunch) {
             // Lần đầu mở app: cộng 100 gold và khởi tạo ngày lễ
-            updateGold(100)
+            updateGold(10000)
             initializeCommonEvents()
             
             sharedPref.edit()
@@ -60,24 +60,26 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     private fun initializeCommonEvents() {
-        // Cấu trúc: Tên, Ngày, Tháng, Loại
+        // Cấu trúc: Tên, Ngày, Tháng → (Loại, iconType)
+        // iconType: 0 = icon_lehoi, 1 = icon_ram, -1 = icon_gio (mặc định)
         val initialEvents = listOf(
-            Triple("Giỗ tổ Hùng Vương", 10, 3) to EventEntity.TYPE_SYSTEM,
-            Triple("Rằm Tháng 7", 15, 7) to EventEntity.TYPE_SYSTEM,
-            Triple("Tết Trung Thu", 15, 8) to EventEntity.TYPE_SYSTEM,
-            Triple("Rằm Tháng 9", 15, 9) to EventEntity.TYPE_SYSTEM,
-            Triple("Rằm Tháng 10", 15, 10) to EventEntity.TYPE_SYSTEM,
-            Triple("Rằm Tháng 11", 15, 11) to EventEntity.TYPE_SYSTEM,
-            Triple("Rằm Tháng 12", 15, 12) to EventEntity.TYPE_SYSTEM,
-            Triple("Tết Nguyên Đán", 1, 1) to EventEntity.TYPE_SYSTEM,
-            Triple("Giỗ Bà Nội", 16, 8) to EventEntity.TYPE_USER
+            Triple("Giỗ tổ Hùng Vương 123456789", 10, 3) to Pair(EventEntity.TYPE_SYSTEM, 0),
+            Triple("Rằm Tháng 7",       15, 7)  to Pair(EventEntity.TYPE_SYSTEM, 1),
+            Triple("Tết Trung Thu",      15, 8)  to Pair(EventEntity.TYPE_SYSTEM, 1),
+            Triple("Rằm Tháng 9",        15, 9)  to Pair(EventEntity.TYPE_SYSTEM, 1),
+            Triple("Rằm Tháng 10",       15, 10) to Pair(EventEntity.TYPE_SYSTEM, 1),
+            Triple("Rằm Tháng 11",       15, 11) to Pair(EventEntity.TYPE_SYSTEM, 1),
+            Triple("Rằm Tháng 12",       15, 12) to Pair(EventEntity.TYPE_SYSTEM, 1),
+            Triple("Tết Nguyên Đán",     1,  1)  to Pair(EventEntity.TYPE_SYSTEM, 0),
+            Triple("Giỗ Bà Nội",         16, 8)  to Pair(EventEntity.TYPE_USER,   -1)
         )
 
         val currentYear = Calendar.getInstance().get(Calendar.YEAR)
 
         viewModelScope.launch {
-            initialEvents.forEach { (info, type) ->
+            initialEvents.forEach { (info, meta) ->
                 val (name, day, month) = info
+                val (type, iconType) = meta
                 try {
                     // Chuyển đổi offline bằng thuật toán Hồ Ngọc Đức
                     val solarDate = LunarSolarConverter.convertLunar2Solar(day, month, currentYear)
@@ -94,7 +96,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                         solarDate = solarDateStr,
                         lunarDate = "$day/$month/$currentYear (Âm lịch)",
                         eventDate = solarDateParsed?.time ?: 0L,
-                        type = type
+                        type = type,
+                        iconType = iconType
                     )
                     eventDao.insertEvent(entity)
                 } catch (e: Exception) {
@@ -102,7 +105,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                         name = name,
                         solarDate = "Lỗi chuyển đổi",
                         lunarDate = "$day/$month/$currentYear (Âm lịch)",
-                        type = type
+                        type = type,
+                        iconType = iconType
                     )
                     eventDao.insertEvent(entity)
                 }

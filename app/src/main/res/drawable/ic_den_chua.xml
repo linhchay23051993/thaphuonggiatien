@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+
+    <!-- Mái chùa tầng trên cùng -->
+    <path
+        android:fillColor="#B5874A"
+        android:pathData="M24,2 L30,10 L18,10 Z" />
+
+    <!-- Mái chùa tầng 2 -->
+    <path
+        android:fillColor="#C8964F"
+        android:pathData="M24,9 L36,18 L12,18 Z" />
+
+    <!-- Mái chùa tầng dưới -->
+    <path
+        android:fillColor="#B5874A"
+        android:pathData="M24,16 L40,28 L8,28 Z" />
+
+    <!-- Thân chùa -->
+    <path
+        android:fillColor="#D4B57A"
+        android:pathData="M14,28 h20 v16 h-20 z" />
+
+    <!-- Cửa chính -->
+    <path
+        android:fillColor="#8B4513"
+        android:pathData="M20,34 Q20,28 24,28 Q28,28 28,34 L28,44 L20,44 Z" />
+
+    <!-- Cửa sổ trái -->
+    <path
+        android:fillColor="#8B4513"
+        android:pathData="M15,31 h5 v5 h-5 z" />
+
+    <!-- Cửa sổ phải -->
+    <path
+        android:fillColor="#8B4513"
+        android:pathData="M28,31 h5 v5 h-5 z" />
+
+    <!-- Đường viền mái -->
+    <path
+        android:strokeColor="#9A6B2E"
+        android:strokeWidth="1"
+        android:fillColor="#00000000"
+        android:pathData="M8,28 L24,16 L40,28" />
+
+    <!-- Đường viền mái 2 -->
+    <path
+        android:strokeColor="#9A6B2E"
+        android:strokeWidth="1"
+        android:fillColor="#00000000"
+        android:pathData="M12,18 L24,9 L36,18" />
+
+    <!-- Đỉnh trang trí -->
+    <path
+        android:fillColor="#8B4513"
+        android:pathData="M22,2 h4 v3 h-4 z" />
+
+</vector>

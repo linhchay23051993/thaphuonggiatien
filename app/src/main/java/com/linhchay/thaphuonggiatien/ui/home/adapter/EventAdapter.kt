@@ -1,6 +1,7 @@
 package com.linhchay.thaphuonggiatien.ui.home.adapter
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -33,24 +34,23 @@ class EventAdapter(
         private val onEditClick: ((Event) -> Unit)?,
         private val onDeleteClick: ((Event) -> Unit)?
     ) : RecyclerView.ViewHolder(binding.root) {
+
         fun bind(event: Event) {
-            // Cập nhật tên và trạng thái đếm ngược riêng biệt
             binding.txtEventName.text = event.name
-            
-            val remainingDays = com.linhchay.thaphuonggiatien.utils.DateUtils.getRemainingDaysDescription(event.eventDate)
-            binding.txtStatus.apply {
-                text = remainingDays
-                visibility = android.view.View.VISIBLE
+
+            // Icon
+            val iconRes = when (event.iconType) {
+                0 -> com.linhchay.thaphuonggiatien.R.drawable.icon_lehoi
+                1 -> com.linhchay.thaphuonggiatien.R.drawable.icon_ram
+                else -> com.linhchay.thaphuonggiatien.R.drawable.icon_gio
             }
-            
-            // Hàm helper để lấy ngày/tháng (bỏ 0 ở đầu, bỏ năm, bỏ chữ bổ trợ)
+            binding.imgEventIcon.setImageResource(iconRes)
+
+            // Ngày hiển thị
             fun getShortDate(date: String): String {
-                // Xóa các chữ như (Âm lịch), Âm...
                 val cleaned = date.replace(Regex("""(?i)\s*\(?Âm lịch\)?\s*"""), "")
                     .replace(Regex("""(?i)\s*Âm\s*"""), "")
                     .trim()
-                
-                // Tách lấy ngày/tháng/năm
                 val parts = cleaned.split("/")
                 return if (parts.size >= 2) {
                     val day = parts[0].toIntOrNull()?.toString() ?: parts[0]
@@ -60,18 +60,26 @@ class EventAdapter(
                     cleaned
                 }
             }
-            
-            val solarDisplay = getShortDate(event.solarDate)
-            val lunarDisplay = getShortDate(event.lunarDate)
-            
-            binding.txtSolarDate.text = "Dương: $solarDisplay - Âm: $lunarDisplay"
+            binding.txtSolarDate.text = "Dương: ${getShortDate(event.solarDate)} - Âm: ${getShortDate(event.lunarDate)}"
+
+            // Số ngày còn lại (luôn tính)
+            val remainingDays = com.linhchay.thaphuonggiatien.utils.DateUtils
+                .getRemainingDaysDescription(event.eventDate)
 
             if (showActions) {
-                binding.layoutActions.visibility = android.view.View.VISIBLE
+                // Màn AllEvents: badge hiện cạnh tên, edit/delete bên phải
+                binding.txtStatus.text = remainingDays
+                binding.txtStatus.visibility = View.VISIBLE
+                binding.layoutBadge.visibility = View.GONE
+                binding.layoutActions.visibility = View.VISIBLE
                 binding.btnEdit.setOnClickListener { onEditClick?.invoke(event) }
                 binding.btnDelete.setOnClickListener { onDeleteClick?.invoke(event) }
             } else {
-                binding.layoutActions.visibility = android.view.View.GONE
+                // Màn Home: badge ở bên phải (center-right), ẩn badge cạnh tên
+                binding.txtBadge.text = remainingDays
+                binding.txtStatus.visibility = View.GONE
+                binding.layoutBadge.visibility = View.VISIBLE
+                binding.layoutActions.visibility = View.GONE
             }
         }
     }

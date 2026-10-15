@@ -20,54 +20,65 @@
             android:paddingEnd="20dp"
             android:paddingBottom="32dp">
 
-            <LinearLayout
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/layoutUserInfo"
                 android:layout_width="match_parent"
                 android:layout_marginTop="8dp"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
+                android:layout_height="wrap_content">
 
+                <!-- Avatar -->
                 <ImageView
                     android:id="@+id/imgAvatar"
-                    android:layout_width="44dp"
-                    android:layout_height="44dp"
-                    android:layout_marginEnd="10dp"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
                     android:scaleType="centerCrop"
                     android:src="@drawable/ic_user_placeholder"
                     android:background="@drawable/bg_circle_avatar"
                     android:clipToOutline="true"
-                    android:contentDescription="Ảnh đại diện" />
+                    android:contentDescription="Ảnh đại diện"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent" />
 
+                <!-- Cột giữa: Tên user + Gold -->
                 <LinearLayout
+                    android:id="@+id/layoutNameGold"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
+                    android:orientation="vertical"
+                    android:layout_marginStart="10dp"
+                    app:layout_constraintStart_toEndOf="@id/imgAvatar"
+                    app:layout_constraintEnd_toStartOf="@id/layoutDateTime"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent">
 
                     <TextView
                         android:id="@+id/txtGreeting"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Xin chào!"
+                        android:text="Xin chào!!!"
                         android:textColor="@color/black"
-                        android:textSize="15sp" />
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
 
-                    <TextView
-                        android:id="@+id/txtUserName"
+                    <include
+                        android:id="@+id/layoutGold"
+                        layout="@layout/layout_gold"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textColor="@color/black"
-                        android:text="Linh"
-                        android:textSize="18sp"
-                        android:textStyle="bold" />
+                        android:layout_marginTop="4dp" />
                 </LinearLayout>
 
+                <!-- Cột phải: Ngày tháng -->
                 <LinearLayout
+                    android:id="@+id/layoutDateTime"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:gravity="end">
+                    android:gravity="end"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent">
 
                     <LinearLayout
                         android:layout_width="wrap_content"
@@ -103,14 +114,8 @@
                         android:textSize="13sp"
                         android:gravity="end" />
                 </LinearLayout>
-            </LinearLayout>
 
-            <include
-                android:id="@+id/layoutGold"
-                layout="@layout/layout_gold"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
@@ -196,79 +201,173 @@
                 </androidx.cardview.widget.CardView>
             </androidx.constraintlayout.widget.ConstraintLayout>
 
+            <!-- Nút Thắp hương ngay -->
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/cardThapHuongNgay"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/bg_thap_huong_button"
+                android:clickable="true"
+                android:focusable="true"
+                android:padding="14dp">
+
+                <!-- Icon bát hương tròn -->
+                <ImageView
+                    android:id="@+id/imgThapHuongIcon"
+                    android:layout_width="52dp"
+                    android:layout_height="52dp"
+                    android:background="@drawable/bg_icon_circle_beige"
+                    android:contentDescription="@null"
+                    android:padding="8dp"
+                    android:src="@drawable/ic_bat_huong"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent" />
+
+                <!-- Nội dung text -->
+                <LinearLayout
+                    android:id="@+id/layoutThapHuongText"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="14dp"
+                    android:layout_marginEnd="8dp"
+                    android:orientation="vertical"
+                    android:gravity="center_vertical"
+                    app:layout_constraintStart_toEndOf="@id/imgThapHuongIcon"
+                    app:layout_constraintEnd_toStartOf="@id/imgThapHuongArrow"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Thắp hương ngay"
+                        android:textColor="#3E2010"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="Trở về với ban thờ gia tiên"
+                        android:textColor="#8B6240"
+                        android:textSize="13sp" />
+                </LinearLayout>
+
+                <!-- Mũi tên phải -->
+                <ImageView
+                    android:id="@+id/imgThapHuongArrow"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:contentDescription="@null"
+                    android:src="@drawable/ic_arrow_right"
+                    app:tint="#C0824A"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <!-- 2 nút Ban thờ gia tiên + Dâng lễ đền chùa -->
             <LinearLayout
                 android:id="@+id/layoutFunctions"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
+                android:layout_marginTop="12dp"
                 android:baselineAligned="false"
                 android:orientation="horizontal"
                 android:weightSum="2">
 
+                <!-- Ban thờ gia tiên -->
                 <LinearLayout
                     android:id="@+id/cardBanThoGiaTien"
                     android:layout_width="0dp"
-                    android:layout_height="150dp"
-                    android:layout_marginEnd="8dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="6dp"
                     android:layout_weight="1"
                     android:background="@drawable/bg_action_button"
                     android:clickable="true"
                     android:focusable="true"
                     android:gravity="center"
                     android:orientation="vertical"
-                    android:padding="16dp">
+                    android:paddingTop="14dp"
+                    android:paddingBottom="14dp"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp">
 
                     <ImageView
                         android:id="@+id/imgBanThoIcon"
-                        android:layout_width="64dp"
-                        android:layout_height="64dp"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
                         android:contentDescription="@null"
-                        android:src="@android:drawable/ic_menu_gallery"
-                        app:tint="#8B4513" />
+                        android:src="@drawable/ic_den_chua" />
 
                     <TextView
                         android:id="@+id/txtBanThoTitle"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="12dp"
+                        android:layout_marginTop="8dp"
                         android:gravity="center"
-                        android:text="BAN THỜ\nGIA TIÊN"
-                        android:textColor="#5D4037"
-                        android:textSize="16sp"
+                        android:text="Ban thờ gia tiên"
+                        android:textColor="#3E2010"
+                        android:textSize="14sp"
                         android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="3dp"
+                        android:gravity="center"
+                        android:text="Thắp hương, cầu an"
+                        android:textColor="#8B6240"
+                        android:textSize="12sp" />
                 </LinearLayout>
 
+                <!-- Dâng lễ đền chùa -->
                 <LinearLayout
                     android:id="@+id/cardDangLe"
                     android:layout_width="0dp"
-                    android:layout_height="150dp"
-                    android:layout_marginStart="8dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
                     android:layout_weight="1"
                     android:background="@drawable/bg_action_button"
                     android:clickable="true"
                     android:focusable="true"
                     android:gravity="center"
                     android:orientation="vertical"
-                    android:padding="16dp">
+                    android:paddingTop="14dp"
+                    android:paddingBottom="14dp"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp">
 
                     <ImageView
                         android:id="@+id/imgDangLeIcon"
-                        android:layout_width="64dp"
-                        android:layout_height="64dp"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
                         android:contentDescription="@null"
-                        android:src="@android:drawable/ic_menu_send"
-                        app:tint="#8B4513" />
+                        android:src="@drawable/ic_hoa_sen" />
 
                     <TextView
                         android:id="@+id/txtDangLeTitle"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="12dp"
+                        android:layout_marginTop="8dp"
                         android:gravity="center"
-                        android:text="DÂNG LỄ\nĐỀN CHÙA"
-                        android:textColor="#5D4037"
-                        android:textSize="16sp"
+                        android:text="Dâng lễ đền chùa"
+                        android:textColor="#3E2010"
+                        android:textSize="14sp"
                         android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="3dp"
+                        android:gravity="center"
+                        android:text="Thành tâm hướng thiện"
+                        android:textColor="#8B6240"
+                        android:textSize="12sp" />
                 </LinearLayout>
             </LinearLayout>
 

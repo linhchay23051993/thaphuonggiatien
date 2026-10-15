@@ -57,7 +57,8 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
                         solarDate = entity.solarDate,
                         lunarDate = entity.lunarDate,
                         eventDate = entity.eventDate,
-                        status = calculateStatus(entity.solarDate, today)
+                        status = calculateStatus(entity.solarDate, today),
+                        iconType = entity.iconType
                     )
                 }.sortedWith { e1, e2 ->
                     val s1 = e1.solarDate == "Đang đồng bộ..." || e1.solarDate == "Đồng bộ sau"
