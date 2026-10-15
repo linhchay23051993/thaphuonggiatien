@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Đường kẻ trên -->
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="#D4B48C" />
+        </shape>
+    </item>
+    <!-- Nền chính -->
+    <item android:top="1dp">
+        <shape android:shape="rectangle">
+            <gradient
+                android:startColor="#FDF5EB"
+                android:centerColor="#FAF0E0"
+                android:endColor="#F5E8D0"
+                android:angle="0" />
+        </shape>
+    </item>
+</layer-list>

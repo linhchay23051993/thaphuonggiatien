@@ -57,7 +57,7 @@
                 android:layout_height="40dp"
                 android:background="@drawable/bg_circle_action"
                 android:padding="10dp"
-                android:src="@android:drawable/ic_input_add"
+                android:src="@drawable/cart"
                 app:tint="@color/white" />
 
             <TextView
@@ -89,7 +89,7 @@
                 android:layout_height="40dp"
                 android:background="@drawable/bg_circle_action"
                 android:padding="10dp"
-                android:src="@android:drawable/ic_menu_rotate"
+                android:src="@drawable/sap_xep"
                 app:tint="@color/white" />
 
             <TextView
@@ -188,8 +188,8 @@
         <LinearLayout
             android:id="@+id/btnDangLe"
             android:layout_width="0dp"
-            android:layout_height="90dp"
-            android:layout_margin="4dp"
+            android:layout_height="76dp"
+            android:layout_margin="3dp"
             android:layout_weight="1"
             android:background="@drawable/bg_action_button"
             android:clickable="true"
@@ -198,27 +198,27 @@
             android:orientation="vertical">
 
             <ImageView
-                android:layout_width="36dp"
-                android:layout_height="36dp"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
                 android:src="@drawable/ic_flower_tray"
                 app:tint="#8B4513" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
+                android:layout_marginTop="3dp"
                 android:gravity="center"
                 android:text="Dâng lễ"
                 android:textColor="#5D4037"
-                android:textSize="14sp"
+                android:textSize="13sp"
                 android:textStyle="bold" />
         </LinearLayout>
 
         <LinearLayout
             android:id="@+id/btnThapHuong"
             android:layout_width="0dp"
-            android:layout_height="90dp"
-            android:layout_margin="4dp"
+            android:layout_height="76dp"
+            android:layout_margin="3dp"
             android:layout_weight="1"
             android:background="@drawable/bg_action_button"
             android:clickable="true"
@@ -227,27 +227,27 @@
             android:orientation="vertical">
 
             <ImageView
-                android:layout_width="36dp"
-                android:layout_height="36dp"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
                 android:src="@drawable/ic_incense"
                 app:tint="#8B4513" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
+                android:layout_marginTop="3dp"
                 android:gravity="center"
                 android:text="Thắp hương"
                 android:textColor="#5D4037"
-                android:textSize="14sp"
+                android:textSize="13sp"
                 android:textStyle="bold" />
         </LinearLayout>
 
         <LinearLayout
             android:id="@+id/btnBaiKhan"
             android:layout_width="0dp"
-            android:layout_height="90dp"
-            android:layout_margin="4dp"
+            android:layout_height="76dp"
+            android:layout_margin="3dp"
             android:layout_weight="1"
             android:background="@drawable/bg_action_button"
             android:clickable="true"
@@ -256,19 +256,19 @@
             android:orientation="vertical">
 
             <ImageView
-                android:layout_width="36dp"
-                android:layout_height="36dp"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
                 android:src="@drawable/ic_pray_book"
                 app:tint="#8B4513" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
+                android:layout_marginTop="3dp"
                 android:gravity="center"
                 android:text="Bài khấn"
                 android:textColor="#5D4037"
-                android:textSize="14sp"
+                android:textSize="13sp"
                 android:textStyle="bold" />
         </LinearLayout>
     </LinearLayout>

@@ -1,6 +1,7 @@
 package com.linhchay.thaphuonggiatien
 
 import android.os.Bundle
+import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.NavOptions
@@ -13,6 +14,13 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private val viewModel: MainViewModel by viewModels()
+
+    // Các màn hiển thị banner quảng cáo
+    private val adBannerDestinations = setOf(
+        R.id.navigation_home,
+        R.id.templeListFragment,
+        R.id.templeAltarFragment
+    )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,7 +46,7 @@ class MainActivity : AppCompatActivity() {
         // Flag để tránh vòng lặp khi set selectedItemId bằng code
         var updatingSelection = false
 
-        // Đồng bộ highlight BottomNav theo NavController
+        // Đồng bộ highlight BottomNav theo NavController + ẩn/hiện banner
         navController.addOnDestinationChangedListener { _, destination, _ ->
             val tabId = destinationToTab[destination.id] ?: return@addOnDestinationChangedListener
             if (!updatingSelection && navView.selectedItemId != tabId) {
@@ -46,6 +54,9 @@ class MainActivity : AppCompatActivity() {
                 navView.selectedItemId = tabId
                 updatingSelection = false
             }
+
+            // Hiện banner ở màn Home và Đền chùa, ẩn ở các màn khác
+            binding.layoutAdBanner.root.visibility = if (destination.id in adBannerDestinations) View.VISIBLE else View.GONE
         }
 
         // Xử lý khi user bấm tab
