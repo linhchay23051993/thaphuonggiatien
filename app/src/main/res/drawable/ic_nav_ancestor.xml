@@ -1,0 +1,46 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+
+    <!-- 3 nén hương và khói -->
+    <!-- Nén giữa -->
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="M11.25,2h1.5v8h-1.5z" />
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="M11,0.5h2v1h-2z" />
+
+    <!-- Nén trái -->
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="M7.75,3.8h1.5v6.2h-1.5z" />
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="M7.5,2.4h2v1h-2z" />
+
+    <!-- Nén phải -->
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="M14.75,3.8h1.5v6.2h-1.5z" />
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="M14.5,2.4h2v1h-2z" />
+
+    <!-- Miệng bát hương -->
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="M5,10.2c0,-0.6 1.8,-1 7,-1s7,0.4 7,1s-1.8,1 -7,1s-7,-0.4 -7,-1z" />
+
+    <!-- Thân và 2 tai bát hương -->
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="M5.5,12h13c-0.3,3.5 -2.5,6 -6.5,6s-6.2,-2.5 -6.5,-6zM3.5,12c-0.8,0 -1.5,0.7 -1.5,1.5c0,1.5 1.5,2.5 3,2.5v-1.2c-0.8,0 -1.6,-0.5 -1.6,-1.3c0,-0.4 0.4,-0.6 0.8,-0.6c0.3,0 0.6,0.1 0.8,0.2v-1.1zM20.5,12c0.8,0 1.5,0.7 1.5,1.5c0,1.5 -1.5,2.5 -3,2.5v-1.2c0.8,0 1.6,-0.5 1.6,-1.3c0,-0.4 -0.4,-0.6 -0.8,-0.6c-0.3,0 -0.6,0.1 -0.8,0.2v-1.1z" />
+
+    <!-- Chân đế bát hương -->
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="M7.5,19h9c0.5,0 1,0.5 1.2,1.5c0.1,0.5 -0.3,1 -0.9,1h-9.6c-0.6,0 -1,-0.5 -0.9,-1c0.2,-1 0.7,-1.5 1.2,-1.5z" />
+</vector>

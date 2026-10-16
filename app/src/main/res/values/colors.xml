@@ -9,7 +9,7 @@
     <color name="white">#FFFFFFFF</color>
     <color name="accent_color">#FFD700</color>
     <color name="delete_red">#FF4444</color>
-    <color name="orange_main">#E64A19</color>
+    <color name="orange_main">#D87B3B</color>
     <color name="gray_nav">#757575</color>
     <color name="nav_bg">#FAF9F6</color>
 
@@ -37,5 +37,5 @@
     <color name="ancient_cream">#F5DEB3</color>
     <color name="border_gray_normal">#BDBDBD</color>
     <color name="trad_divider">#E0C2A0</color>
-    <color name="green_light">#2CAD32</color>">
+    <color name="green_light">#2CAD32</color>
 </resources>
