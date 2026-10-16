@@ -26,4 +26,7 @@
     <string name="btn_back">Quay lại</string>
     <string name="btn_close">Đóng</string>
     <string name="prayer_title">Bài Khấn</string>
+    <string name="guide_buy_items_title">Hướng Dẫn</string>
+    <string name="guide_buy_items_content">bạn hãy mua thêm đồ vật cho ban thờ của mình nhé</string>
+    <string name="guide_btn_understood">Tôi đã hiểu</string>
 </resources>

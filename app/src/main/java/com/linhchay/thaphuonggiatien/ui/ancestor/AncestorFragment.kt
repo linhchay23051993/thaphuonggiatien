@@ -2,6 +2,8 @@ package com.linhchay.thaphuonggiatien.ui.ancestor
 
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
+import android.animation.ObjectAnimator
+import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.BlurMaskFilter
@@ -17,6 +19,7 @@ import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
@@ -47,6 +50,8 @@ class AncestorFragment : Fragment() {
     private val smokeViews = mutableListOf<SmokeView>()
     
     private var currentEditingItemId: Long? = null
+    private var guideArrowAnimator: ObjectAnimator? = null
+    private var guideBackPressedCallback: OnBackPressedCallback? = null
     
     private val pickImageLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
         uri?.let {
@@ -81,6 +86,11 @@ class AncestorFragment : Fragment() {
         observeViewModel()
 
         return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        checkAndShowGuideDialog()
     }
 
     private fun setupGoldObserver() {
@@ -348,6 +358,15 @@ class AncestorFragment : Fragment() {
         binding.btnCancelEdit.setOnClickListener {
             viewModel.cancelChanges()
             viewModel.setEditMode(false)
+        }
+
+        // Hướng dẫn lần đầu (Guide Dialog)
+        binding.btnGuideUnderstand.setOnClickListener {
+            dismissGuideDialog(markAsUnderstood = true)
+        }
+        binding.btnGuideHighlight.setOnClickListener {
+            dismissGuideDialog(markAsUnderstood = true)
+            binding.btnMuaVatPham.performClick()
         }
     }
 
@@ -872,9 +891,96 @@ class AncestorFragment : Fragment() {
         }
     }
 
+    private fun checkAndShowGuideDialog() {
+        val ctx = context ?: return
+        val prefs = ctx.getSharedPreferences(PREF_GUIDE_NAME, Context.MODE_PRIVATE)
+        val hasSeenGuide = prefs.getBoolean(KEY_HAS_SEEN_BUY_ITEMS_GUIDE, false)
+        if (!hasSeenGuide) {
+            binding.root.post {
+                if (_binding != null && isAdded) {
+                    showGuideDialog()
+                }
+            }
+        }
+    }
+
+    private fun showGuideDialog() {
+        if (_binding == null) return
+        binding.layoutGuideOverlay.alpha = 0f
+        binding.layoutGuideOverlay.visibility = View.VISIBLE
+        binding.layoutGuideOverlay.animate()
+            .alpha(1f)
+            .setDuration(250)
+            .start()
+
+        startGuideArrowAnimation()
+
+        if (guideBackPressedCallback == null) {
+            guideBackPressedCallback = object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    dismissGuideDialog(markAsUnderstood = false)
+                }
+            }
+            requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, guideBackPressedCallback!!)
+        } else {
+            guideBackPressedCallback?.isEnabled = true
+        }
+    }
+
+    private fun dismissGuideDialog(markAsUnderstood: Boolean) {
+        if (_binding == null) return
+        if (markAsUnderstood) {
+            context?.getSharedPreferences(PREF_GUIDE_NAME, Context.MODE_PRIVATE)?.edit()
+                ?.putBoolean(KEY_HAS_SEEN_BUY_ITEMS_GUIDE, true)
+                ?.apply()
+        }
+        guideBackPressedCallback?.isEnabled = false
+        stopGuideArrowAnimation()
+
+        binding.layoutGuideOverlay.animate()
+            .alpha(0f)
+            .setDuration(200)
+            .withEndAction {
+                if (_binding != null) {
+                    binding.layoutGuideOverlay.visibility = View.GONE
+                    binding.layoutGuideOverlay.alpha = 1f
+                }
+            }
+            .start()
+    }
+
+    private fun startGuideArrowAnimation() {
+        if (_binding == null) return
+        stopGuideArrowAnimation()
+        guideArrowAnimator = ObjectAnimator.ofFloat(
+            binding.imgGuideArrow,
+            "translationY",
+            0f,
+            -10f,
+            0f
+        ).apply {
+            duration = 800
+            repeatCount = ValueAnimator.INFINITE
+            repeatMode = ValueAnimator.RESTART
+            interpolator = AccelerateDecelerateInterpolator()
+            start()
+        }
+    }
+
+    private fun stopGuideArrowAnimation() {
+        guideArrowAnimator?.cancel()
+        guideArrowAnimator = null
+    }
+
     override fun onDestroyView() {
+        stopGuideArrowAnimation()
         super.onDestroyView()
         removeSmokeEffect()
         _binding = null
+    }
+
+    companion object {
+        private const val PREF_GUIDE_NAME = "app_guide_prefs"
+        private const val KEY_HAS_SEEN_BUY_ITEMS_GUIDE = "has_seen_buy_items_guide"
     }
 }
