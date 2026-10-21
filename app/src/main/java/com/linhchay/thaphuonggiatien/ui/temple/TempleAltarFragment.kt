@@ -14,6 +14,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AccelerateDecelerateInterpolator
+import android.widget.HorizontalScrollView
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -23,11 +24,13 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.tabs.TabLayout
 import com.linhchay.thaphuonggiatien.MainActivity
 import com.linhchay.thaphuonggiatien.MainViewModel
 import com.linhchay.thaphuonggiatien.R
 import com.linhchay.thaphuonggiatien.data.model.AltarItem
+import com.linhchay.thaphuonggiatien.data.model.IncenseType
 import com.linhchay.thaphuonggiatien.data.model.Temple
 import com.linhchay.thaphuonggiatien.databinding.FragmentTempleAltarBinding
 import com.linhchay.thaphuonggiatien.ui.ancestor.adapter.PrayerAdapter
@@ -303,44 +306,84 @@ class TempleAltarFragment : Fragment() {
 
     private fun showIncenseDialog() {
         val dialogView = layoutInflater.inflate(R.layout.dialog_select_incense, null)
-        val optionOne = dialogView.findViewById<View>(R.id.optionOneStick)
-        val optionThree = dialogView.findViewById<View>(R.id.optionThreeSticks)
-        val btnOk = dialogView.findViewById<View>(R.id.btnOk)
+        val scrollIncense = dialogView.findViewById<HorizontalScrollView>(R.id.scrollIncense)
+        val layoutContainer = dialogView.findViewById<LinearLayout>(R.id.layoutIncenseContainer)
+        val btnOk = dialogView.findViewById<TextView>(R.id.btnOk)
         val btnCancel = dialogView.findViewById<View>(R.id.btnCancel)
-        
-        var isThreeSticksSelected = false
-        optionOne.isSelected = true 
-        
+
+        val incenseList = IncenseType.DEFAULT_LIST
+        var selectedIndex = 0
+
+        val itemViews = mutableListOf<View>()
+        val density = resources.displayMetrics.density
+        val itemMarginEnd = (10 * density).toInt()
+
+        fun updateSelection(pos: Int) {
+            selectedIndex = pos
+            val selectedItem = incenseList[pos]
+            btnOk.text = "Xác nhận (${selectedItem.price} Vàng)"
+            itemViews.forEachIndexed { idx, itemView ->
+                val card = itemView.findViewById<View>(R.id.cardContainer)
+                val check = itemView.findViewById<View>(R.id.imgCheck)
+                val isSelected = (idx == pos)
+                card.isSelected = isSelected
+                check.visibility = if (isSelected) View.VISIBLE else View.INVISIBLE
+            }
+        }
+
+        incenseList.forEachIndexed { index, incense ->
+            val itemView = layoutInflater.inflate(R.layout.item_incense_card, layoutContainer, false)
+            val cardContainer = itemView.findViewById<View>(R.id.cardContainer)
+            val imgIncense = itemView.findViewById<ImageView>(R.id.imgIncense)
+            val txtName = itemView.findViewById<TextView>(R.id.txtIncenseName)
+            val txtDesc = itemView.findViewById<TextView>(R.id.txtIncenseDesc)
+            val txtPrice = itemView.findViewById<TextView>(R.id.txtIncensePrice)
+
+            imgIncense.setImageResource(incense.imageResId)
+            txtName.text = incense.name
+            txtDesc.text = incense.description
+            txtPrice.text = "${incense.price} Vàng"
+
+            val params = LinearLayout.LayoutParams(
+                (135 * density).toInt(),
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                if (index < incenseList.size - 1) {
+                    marginEnd = itemMarginEnd
+                }
+            }
+            itemView.layoutParams = params
+
+            cardContainer.setOnClickListener {
+                updateSelection(index)
+                val targetScrollX = itemView.left - (scrollIncense.width - itemView.width) / 2
+                scrollIncense.smoothScrollTo(targetScrollX.coerceAtLeast(0), 0)
+            }
+
+            layoutContainer.addView(itemView)
+            itemViews.add(itemView)
+        }
+
+        updateSelection(0)
+
         val dialog = AlertDialog.Builder(requireContext())
             .setView(dialogView)
             .create()
-        
-        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
 
-        optionOne.setOnClickListener {
-            optionOne.isSelected = true
-            optionThree.isSelected = false
-            isThreeSticksSelected = false
-        }
-        
-        optionThree.setOnClickListener {
-            optionThree.isSelected = true
-            optionOne.isSelected = false
-            isThreeSticksSelected = true
-        }
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
 
         btnCancel.setOnClickListener { dialog.dismiss() }
         btnOk.setOnClickListener {
-            val price = if (isThreeSticksSelected) 10 else 5
+            val selectedIncense = incenseList[selectedIndex]
             val mainActivity = activity as? MainActivity
-            if (mainActivity?.updateGold(-price) == true) {
-                startIncenseAnimation(isThreeSticksSelected)
+            if (mainActivity?.updateGold(-selectedIncense.price) == true) {
+                startIncenseAnimation(selectedIncense.imageResId, selectedIncense.sticksCount)
                 dialog.dismiss()
             } else {
                 android.widget.Toast.makeText(requireContext(), "Bạn không đủ vàng!", android.widget.Toast.LENGTH_SHORT).show()
             }
         }
-        
+
         dialog.show()
     }
 
@@ -488,13 +531,21 @@ class TempleAltarFragment : Fragment() {
         }
     }
 
-    private fun startIncenseAnimation(isThreeSticks: Boolean) {
+    private fun startIncenseAnimation(incenseResId: Int, sticksCount: Int) {
         val burners = findBatHuongViews()
+        val isThreeSticks = sticksCount > 1
+        val density = resources.displayMetrics.density
+        val sizeW = ((if (isThreeSticks) 55 else 30) * density).toInt()
+        val sizeH = (100 * density).toInt()
+
         if (burners.isEmpty()) {
             animateToPosition(
-                binding.altarContainer.x + binding.altarContainer.width / 2f,
-                binding.altarContainer.y + binding.altarContainer.height * 0.7f,
-                isThreeSticks,
+                binding.altarContainer.x + binding.altarContainer.width / 2f - sizeW / 2f,
+                binding.altarContainer.y + binding.altarContainer.height * 0.7f - sizeH / 2f,
+                incenseResId,
+                sizeW,
+                sizeH,
+                sticksCount,
                 true
             )
             return
@@ -505,23 +556,29 @@ class TempleAltarFragment : Fragment() {
             burner.getLocationInWindow(location)
             val rootLocation = IntArray(2)
             binding.root.getLocationInWindow(rootLocation)
-            
-            val sizeW = if (isThreeSticks) 60 else 30
+
             val targetX = (location[0] - rootLocation[0]).toFloat() + burner.width / 2f - sizeW / 2f
-            val targetY = (location[1] - rootLocation[1]).toFloat() - 120 / 2f
-            
-            animateToPosition(targetX, targetY, isThreeSticks, index == 0)
+            val targetY = (location[1] - rootLocation[1]).toFloat() - sizeH / 2f
+
+            animateToPosition(targetX, targetY, incenseResId, sizeW, sizeH, sticksCount, index == 0)
         }
     }
 
-    private fun animateToPosition(targetX: Float, targetY: Float, isThreeSticks: Boolean, shouldTriggerBurning: Boolean) {
-        val incenseResId = if (isThreeSticks) R.drawable.ba_nen else R.drawable.mot_nen
-        val incenseView = ImageView(requireContext())
-        incenseView.setImageResource(incenseResId)
-        val sizeW = if (isThreeSticks) 60 else 30
-        val sizeH = 120
-        incenseView.layoutParams = ViewGroup.LayoutParams(sizeW, sizeH)
-        
+    private fun animateToPosition(
+        targetX: Float,
+        targetY: Float,
+        incenseResId: Int,
+        sizeW: Int,
+        sizeH: Int,
+        sticksCount: Int,
+        shouldTriggerBurning: Boolean
+    ) {
+        val incenseView = ImageView(requireContext()).apply {
+            setImageResource(incenseResId)
+            scaleType = ImageView.ScaleType.FIT_CENTER
+            layoutParams = ViewGroup.LayoutParams(sizeW, sizeH)
+        }
+
         binding.root.addView(incenseView)
         incenseView.x = -sizeW.toFloat()
         incenseView.y = binding.root.height / 2f
@@ -536,7 +593,7 @@ class TempleAltarFragment : Fragment() {
                 override fun onAnimationEnd(animation: Animator) {
                     binding.root.removeView(incenseView)
                     if (shouldTriggerBurning) {
-                        viewModel.startBurning(if (isThreeSticks) 3 else 1)
+                        viewModel.startBurning(sticksCount)
                     }
                 }
             })
