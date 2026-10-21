@@ -397,14 +397,9 @@ class AncestorFragment : Fragment() {
 
         fun updateSelection(pos: Int) {
             selectedIndex = pos
-            val selectedItem = incenseList[pos]
-            btnOk.text = "Xác nhận (${selectedItem.price} Vàng)"
             itemViews.forEachIndexed { idx, itemView ->
                 val card = itemView.findViewById<View>(R.id.cardContainer)
-                val check = itemView.findViewById<View>(R.id.imgCheck)
-                val isSelected = (idx == pos)
-                card.isSelected = isSelected
-                check.visibility = if (isSelected) View.VISIBLE else View.INVISIBLE
+                card.isSelected = (idx == pos)
             }
         }
 
@@ -708,7 +703,10 @@ class AncestorFragment : Fragment() {
 
     private fun showArrangeDialog(onlyOfferings: Boolean = false) {
         val dialogView = layoutInflater.inflate(R.layout.dialog_altar_items, null)
+        val txtDialogTitle = dialogView.findViewById<TextView>(R.id.txtDialogTitle)
+        txtDialogTitle?.text = if (onlyOfferings) "Dâng lễ" else "Chọn vật phẩm"
         val tabLayout = dialogView.findViewById<TabLayout>(R.id.tabLayoutCategories)
+        val scrollItems = dialogView.findViewById<HorizontalScrollView>(R.id.scrollItems)
         val layoutItemsContainer = dialogView.findViewById<LinearLayout>(R.id.layoutItemsContainer)
         val btnOk = dialogView.findViewById<View>(R.id.btnOk)
         val btnCancel = dialogView.findViewById<View>(R.id.btnCancel)
@@ -738,6 +736,7 @@ class AncestorFragment : Fragment() {
 
             items.forEach { item ->
                 val itemView = layoutInflater.inflate(R.layout.item_altar_selectable, layoutItemsContainer, false)
+                val cardContainer = itemView.findViewById<View>(R.id.cardContainer)
                 val imgItem = itemView.findViewById<ImageView>(R.id.imgItem)
                 val priceLayout = itemView.findViewById<View>(R.id.priceLayout)
                 val txtPrice = itemView.findViewById<TextView>(R.id.txtPrice)
@@ -757,12 +756,15 @@ class AncestorFragment : Fragment() {
                     txtPrice.setTextColor(Color.GRAY)
                 } else {
                     imgGoldIcon.visibility = View.VISIBLE
+                    imgGoldIcon.setImageResource(R.drawable.dollar)
                     txtPrice.text = price.toString()
-                    txtPrice.setTextColor(Color.parseColor("#FFD700"))
+                    txtPrice.setTextColor(Color.parseColor("#D4AF37"))
                 }
                 
-                // Hiển thị highlight nếu đã chọn
-                viewSelected.visibility = if (selectedResId == item.imageResId) View.VISIBLE else View.GONE
+                // Hiển thị highlight nếu đã chọn (giống dialog thắp hương)
+                val isSelected = (selectedResId == item.imageResId)
+                cardContainer?.isSelected = isSelected
+                viewSelected?.visibility = View.GONE
 
                 itemView.setOnClickListener {
                     selectedResId = item.imageResId
@@ -772,9 +774,15 @@ class AncestorFragment : Fragment() {
                     // Cập nhật lại UI để highlight
                     for (i in 0 until layoutItemsContainer.childCount) {
                         val child = layoutItemsContainer.getChildAt(i)
-                        child.findViewById<View>(R.id.viewSelected).visibility = View.GONE
+                        child.findViewById<View>(R.id.cardContainer)?.isSelected = false
+                        child.findViewById<View>(R.id.viewSelected)?.visibility = View.GONE
                     }
-                    viewSelected.visibility = View.VISIBLE
+                    cardContainer?.isSelected = true
+
+                    scrollItems?.let { scroll ->
+                        val targetScrollX = itemView.left - (scroll.width - itemView.width) / 2
+                        scroll.smoothScrollTo(targetScrollX.coerceAtLeast(0), 0)
+                    }
                 }
                 layoutItemsContainer.addView(itemView)
             }
