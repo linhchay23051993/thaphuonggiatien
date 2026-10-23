@@ -12,7 +12,14 @@
         <!-- Status bar color. -->
         <item name="android:statusBarColor">@color/white</item>
         <item name="android:windowLightStatusBar">true</item>
+        <!-- Popup Menu Theme -->
+        <item name="popupMenuStyle">@style/TraditionalPopupMenu</item>
+        <item name="android:popupMenuStyle">@style/TraditionalPopupMenu</item>
         <!-- Customize your theme here. -->
+    </style>
+
+    <style name="TraditionalPopupMenu" parent="Widget.MaterialComponents.PopupMenu">
+        <item name="android:popupBackground">@drawable/bg_menu_traditional</item>
     </style>
 
     <style name="TraditionalTabTextAppearance" parent="TextAppearance.Design.Tab">

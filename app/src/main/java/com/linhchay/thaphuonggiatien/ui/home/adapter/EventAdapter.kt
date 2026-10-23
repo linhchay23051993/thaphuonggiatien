@@ -3,9 +3,11 @@ package com.linhchay.thaphuonggiatien.ui.home.adapter
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.widget.PopupMenu
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.linhchay.thaphuonggiatien.R
 import com.linhchay.thaphuonggiatien.data.model.Event
 import com.linhchay.thaphuonggiatien.databinding.ItemHomeEventBinding
 
@@ -67,13 +69,14 @@ class EventAdapter(
                 .getRemainingDaysDescription(event.eventDate)
 
             if (showActions) {
-                // Màn AllEvents: badge hiện cạnh tên, edit/delete bên phải
+                // Màn AllEvents: badge hiện cạnh tên, menu 3 chấm bên phải
                 binding.txtStatus.text = remainingDays
                 binding.txtStatus.visibility = View.VISIBLE
                 binding.layoutBadge.visibility = View.GONE
                 binding.layoutActions.visibility = View.VISIBLE
-                binding.btnEdit.setOnClickListener { onEditClick?.invoke(event) }
-                binding.btnDelete.setOnClickListener { onDeleteClick?.invoke(event) }
+                binding.btnMore.setOnClickListener { view ->
+                    showPopupMenu(view, event)
+                }
             } else {
                 // Màn Home: badge ở bên phải (center-right), ẩn badge cạnh tên
                 binding.txtBadge.text = remainingDays
@@ -81,6 +84,42 @@ class EventAdapter(
                 binding.layoutBadge.visibility = View.VISIBLE
                 binding.layoutActions.visibility = View.GONE
             }
+        }
+
+        private fun showPopupMenu(anchor: View, event: Event) {
+            val context = anchor.context
+            val inflater = LayoutInflater.from(context)
+            val popupView = inflater.inflate(R.layout.layout_menu_event_options, null)
+
+            // Đặt chiều rộng cố định 85dp (gọn gàng, vừa đủ cho icon + chữ Sửa / Xoá)
+            val widthPx = (85 * context.resources.displayMetrics.density).toInt()
+
+            val popupWindow = android.widget.PopupWindow(
+                popupView,
+                widthPx,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                true
+            ).apply {
+                setBackgroundDrawable(android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT))
+                isOutsideTouchable = true
+                elevation = 16f
+            }
+
+            popupView.findViewById<View>(R.id.menuItemEdit).setOnClickListener {
+                popupWindow.dismiss()
+                onEditClick?.invoke(event)
+            }
+
+            popupView.findViewById<View>(R.id.menuItemDelete).setOnClickListener {
+                popupWindow.dismiss()
+                onDeleteClick?.invoke(event)
+            }
+
+            // Căn lề phải menu khớp với lề phải của icon 3 chấm
+            val xOffset = anchor.width - widthPx
+            val yOffset = 4
+
+            popupWindow.showAsDropDown(anchor, xOffset, yOffset)
         }
     }
 

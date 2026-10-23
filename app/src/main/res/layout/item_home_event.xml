@@ -145,7 +145,7 @@
                     app:tint="#8D6E63" />
             </LinearLayout>
 
-            <!-- Nhóm AllEvents: nút edit + delete -->
+            <!-- Nhóm AllEvents: icon 3 chấm tuỳ chọn (Sửa / Xoá) -->
             <LinearLayout
                 android:id="@+id/layoutActions"
                 android:layout_width="wrap_content"
@@ -155,20 +155,13 @@
                 android:visibility="gone">
 
                 <ImageView
-                    android:id="@+id/btnEdit"
-                    android:layout_width="28dp"
-                    android:layout_height="28dp"
-                    android:layout_marginEnd="12dp"
-                    android:contentDescription="Sửa"
-                    android:src="@android:drawable/ic_menu_edit"
-                    app:tint="#8D6E63" />
-
-                <ImageView
-                    android:id="@+id/btnDelete"
-                    android:layout_width="28dp"
-                    android:layout_height="28dp"
-                    android:contentDescription="Xoá"
-                    android:src="@android:drawable/ic_menu_delete"
+                    android:id="@+id/btnMore"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:padding="6dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="Tùy chọn"
+                    android:src="@drawable/ic_more_vert"
                     app:tint="#8D6E63" />
             </LinearLayout>
 

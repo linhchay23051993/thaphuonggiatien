@@ -63,15 +63,38 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         // Cấu trúc: Tên, Ngày, Tháng → (Loại, iconType)
         // iconType: 0 = icon_lehoi, 1 = icon_ram, -1 = icon_gio (mặc định)
         val initialEvents = listOf(
-            Triple("Giỗ tổ Hùng Vương 123456789", 10, 3) to Pair(EventEntity.TYPE_SYSTEM, 0),
-            Triple("Rằm Tháng 7",       15, 7)  to Pair(EventEntity.TYPE_SYSTEM, 1),
-            Triple("Tết Trung Thu",      15, 8)  to Pair(EventEntity.TYPE_SYSTEM, 1),
-            Triple("Rằm Tháng 9",        15, 9)  to Pair(EventEntity.TYPE_SYSTEM, 1),
-            Triple("Rằm Tháng 10",       15, 10) to Pair(EventEntity.TYPE_SYSTEM, 1),
-            Triple("Rằm Tháng 11",       15, 11) to Pair(EventEntity.TYPE_SYSTEM, 1),
-            Triple("Rằm Tháng 12",       15, 12) to Pair(EventEntity.TYPE_SYSTEM, 1),
-            Triple("Tết Nguyên Đán",     1,  1)  to Pair(EventEntity.TYPE_SYSTEM, 0),
-            Triple("Giỗ Bà Nội",         16, 8)  to Pair(EventEntity.TYPE_USER,   -1)
+            Triple("Tết Nguyên Đán", 1, 1) to Pair(EventEntity.TYPE_SYSTEM, 1),
+            Triple("Ngày vía thần tài", 10, 1) to Pair(EventEntity.TYPE_SYSTEM, 1),
+            Triple("Rằm tháng Giêng", 15, 1) to Pair(EventEntity.TYPE_SYSTEM, 1),
+            Triple("Mùng 1 Tháng 2", 1, 2) to Pair(EventEntity.TYPE_SYSTEM, 1),
+            Triple("Rằm Tháng 2", 15, 2) to Pair(EventEntity.TYPE_SYSTEM, 1),
+            Triple("Mùng 1 Tháng 3", 1, 3) to Pair(EventEntity.TYPE_SYSTEM, 1),
+            Triple("Tết Hàn Thực", 3, 3) to Pair(EventEntity.TYPE_SYSTEM, 1),
+            Triple("Giỗ tổ Hùng Vương", 10, 3) to Pair(EventEntity.TYPE_SYSTEM, 1),
+            Triple("Rằm Tháng 3", 15, 3) to Pair(EventEntity.TYPE_SYSTEM, 1),
+            Triple("Mùng 1 Tháng 4", 1, 4) to Pair(EventEntity.TYPE_SYSTEM, 1),
+            Triple("Rằm Tháng 4 - Lễ Phật Đản", 15, 4) to Pair(EventEntity.TYPE_SYSTEM, 1),
+            Triple("Mùng 1 Tháng 5", 1, 5) to Pair(EventEntity.TYPE_SYSTEM, 1),
+            Triple("Tết Đoan Ngọ", 5, 5) to Pair(EventEntity.TYPE_SYSTEM, 1),
+            Triple("Rằm Tháng 5", 15, 5) to Pair(EventEntity.TYPE_SYSTEM, 1),
+            Triple("Mùng 1 Tháng 6", 1, 6) to Pair(EventEntity.TYPE_SYSTEM, 1),
+            Triple("Rằm Tháng 6", 15, 6) to Pair(EventEntity.TYPE_SYSTEM, 1),
+            Triple("Mùng 1 Tháng 7", 1, 7) to Pair(EventEntity.TYPE_SYSTEM, 1),
+            Triple("Lễ Thất Tịch", 7, 7) to Pair(EventEntity.TYPE_SYSTEM, 1),
+            Triple("Rằm tháng 7 - Lễ Vu Lan", 15, 7) to Pair(EventEntity.TYPE_SYSTEM, 1),
+            Triple("Mùng 1 Tháng 8", 1, 8) to Pair(EventEntity.TYPE_SYSTEM, 1),
+            Triple("Tết Trung Thu", 15, 8) to Pair(EventEntity.TYPE_SYSTEM, 1),
+            Triple("Mùng 1 Tháng 9", 1, 9) to Pair(EventEntity.TYPE_SYSTEM, 1),
+            Triple("Tết Trùng Cửu", 9, 9) to Pair(EventEntity.TYPE_SYSTEM, 1),
+            Triple("Rằm Tháng 9", 15, 9) to Pair(EventEntity.TYPE_SYSTEM, 1),
+            Triple("Mùng 1 Tháng 10", 1, 10) to Pair(EventEntity.TYPE_SYSTEM, 1),
+            Triple("Rằm Tháng 10", 15, 10) to Pair(EventEntity.TYPE_SYSTEM, 1),
+            Triple("Mùng 1 Tháng 11", 1, 11) to Pair(EventEntity.TYPE_SYSTEM, 1),
+            Triple("Rằm Tháng 11", 15, 11) to Pair(EventEntity.TYPE_SYSTEM, 1),
+            Triple("Mùng 1 Tháng 12", 1, 12) to Pair(EventEntity.TYPE_SYSTEM, 1),
+            Triple("Rằm Tháng 12", 15, 12) to Pair(EventEntity.TYPE_SYSTEM, 1),
+            Triple("Ông Công ông Táo", 23, 12) to Pair(EventEntity.TYPE_SYSTEM, 1),
+            Triple("Đêm Giao Thừa", 30, 12) to Pair(EventEntity.TYPE_SYSTEM, 1)
         )
 
         val currentYear = Calendar.getInstance().get(Calendar.YEAR)
