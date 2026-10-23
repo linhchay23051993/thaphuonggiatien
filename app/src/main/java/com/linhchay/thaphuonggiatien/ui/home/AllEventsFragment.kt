@@ -1,5 +1,6 @@
 package com.linhchay.thaphuonggiatien.ui.home
 
+import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -16,6 +17,7 @@ import com.linhchay.thaphuonggiatien.databinding.FragmentAllEventsBinding
 import com.linhchay.thaphuonggiatien.data.model.Event
 import com.linhchay.thaphuonggiatien.ui.ancestor.AncestorViewModel
 import com.linhchay.thaphuonggiatien.ui.home.adapter.EventAdapter
+import com.linhchay.thaphuonggiatien.utils.DateUtils
 import com.linhchay.thaphuonggiatien.utils.ViewUtils
 
 class AllEventsFragment : Fragment() {
@@ -25,6 +27,10 @@ class AllEventsFragment : Fragment() {
 
     private lateinit var allEventsViewModel: AllEventsViewModel
     private lateinit var ancestorViewModel: AncestorViewModel
+
+    private lateinit var eventAdapter: EventAdapter
+    private var allEventsList: List<Event> = emptyList()
+    private var currentTabPosition: Int = 0
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -37,14 +43,58 @@ class AllEventsFragment : Fragment() {
 
         ViewUtils.applyStatusBarMargin(binding.layoutHeader)
 
+        setupTabs()
         setupRecyclerView()
         setupClickListeners()
 
         return binding.root
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        val initialTab = savedInstanceState?.getInt(KEY_TAB_POSITION) ?: 0
+        selectTab(initialTab)
+    }
+
+    private fun setupTabs() {
+        binding.tabAll.setOnClickListener { selectTab(0) }
+        binding.tabUpcoming.setOnClickListener { selectTab(1) }
+        binding.tabPassed.setOnClickListener { selectTab(2) }
+    }
+
+    private fun selectTab(position: Int) {
+        currentTabPosition = position
+
+        val activeBg = R.drawable.bg_tab_pill_active
+        val inactiveBg = R.drawable.bg_tab_pill_inactive
+        val activeTextColor = Color.WHITE
+        val inactiveTextColor = Color.parseColor("#4A2810")
+        val activeIconColor = Color.WHITE
+        val inactiveIconColor = Color.parseColor("#4A2810")
+
+        // Tab 1: Tất cả
+        val isAll = position == 0
+        binding.tabAll.setBackgroundResource(if (isAll) activeBg else inactiveBg)
+        binding.txtTabAll.setTextColor(if (isAll) activeTextColor else inactiveTextColor)
+        binding.imgTabAll.setColorFilter(if (isAll) activeIconColor else inactiveIconColor)
+
+        // Tab 2: Sắp tới
+        val isUpcoming = position == 1
+        binding.tabUpcoming.setBackgroundResource(if (isUpcoming) activeBg else inactiveBg)
+        binding.txtTabUpcoming.setTextColor(if (isUpcoming) activeTextColor else inactiveTextColor)
+        binding.imgTabUpcoming.setColorFilter(if (isUpcoming) activeIconColor else inactiveIconColor)
+
+        // Tab 3: Đã qua
+        val isPassed = position == 2
+        binding.tabPassed.setBackgroundResource(if (isPassed) activeBg else inactiveBg)
+        binding.txtTabPassed.setTextColor(if (isPassed) activeTextColor else inactiveTextColor)
+        binding.imgTabPassed.setColorFilter(if (isPassed) activeIconColor else inactiveIconColor)
+
+        updateDisplayList()
+    }
+
     private fun setupRecyclerView() {
-        val adapter = EventAdapter(
+        eventAdapter = EventAdapter(
             showActions = true,
             onEditClick = { event ->
                 showAddEventDialog(event)
@@ -58,13 +108,54 @@ class AllEventsFragment : Fragment() {
                 }
             }
         )
-        binding.rvAllEvents.adapter = adapter
+        binding.rvAllEvents.adapter = eventAdapter
 
         allEventsViewModel.allEvents.observe(viewLifecycleOwner) { events ->
-            adapter.submitList(events)
-            binding.layoutEmpty.visibility = if (events.isEmpty()) View.VISIBLE else View.GONE
-            binding.rvAllEvents.visibility = if (events.isEmpty()) View.GONE else View.VISIBLE
+            allEventsList = events
+            updateDisplayList()
         }
+    }
+
+    private fun updateDisplayList() {
+        val filteredList = when (currentTabPosition) {
+            1 -> allEventsList.filter { !isPassed(it) } // Sắp đến (hôm nay hoặc tương lai)
+            2 -> allEventsList.filter { isPassed(it) }.sortedByDescending { it.eventDate } // Đã qua
+            else -> allEventsList // Tất cả
+        }
+
+        eventAdapter.submitList(filteredList)
+
+        val isEmpty = filteredList.isEmpty()
+        binding.layoutEmpty.visibility = if (isEmpty) View.VISIBLE else View.GONE
+        binding.rvAllEvents.visibility = if (isEmpty) View.GONE else View.VISIBLE
+
+        when (currentTabPosition) {
+            1 -> {
+                binding.txtEmptyTitle.text = "Không có sự kiện sắp tới"
+                binding.txtEmptyDesc.text = "Nhấn + để thêm ngày lễ mới"
+            }
+            2 -> {
+                binding.txtEmptyTitle.text = "Chưa có sự kiện nào đã qua"
+                binding.txtEmptyDesc.text = "Các sự kiện đã qua sẽ xuất hiện ở đây"
+            }
+            else -> {
+                binding.txtEmptyTitle.text = "Chưa có sự kiện nào"
+                binding.txtEmptyDesc.text = "Nhấn + để thêm ngày lễ của bạn"
+            }
+        }
+    }
+
+    private fun isPassed(event: Event): Boolean {
+        return DateUtils.getRemainingDaysDescription(event.eventDate) == "Đã qua"
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putInt(KEY_TAB_POSITION, currentTabPosition)
+    }
+
+    companion object {
+        private const val KEY_TAB_POSITION = "key_tab_position"
     }
 
     private fun setupClickListeners() {

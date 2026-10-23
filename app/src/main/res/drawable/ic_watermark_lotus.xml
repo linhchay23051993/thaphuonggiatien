@@ -1,0 +1,33 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="120dp"
+    android:height="80dp"
+    android:viewportWidth="120"
+    android:viewportHeight="80">
+    <!-- Center petal -->
+    <path
+        android:fillColor="#C5A882"
+        android:pathData="M40,15 C37,28 32,38 27,45 C32,46 37,45 40,42 C43,45 48,46 53,45 C48,38 43,28 40,15 Z" />
+    <!-- Left petals -->
+    <path
+        android:fillColor="#C5A882"
+        android:pathData="M24,25 C16,36 12,47 13,54 C21,55 28,50 31,44 C27,37 25,31 24,25 Z" />
+    <!-- Right petals -->
+    <path
+        android:fillColor="#C5A882"
+        android:pathData="M56,25 C55,31 53,37 49,44 C52,50 59,55 67,54 C68,47 64,36 56,25 Z" />
+    <!-- Outer left petal -->
+    <path
+        android:fillColor="#C5A882"
+        android:pathData="M11,38 C5,47 4,56 6,61 C13,61 20,57 23,51 C18,46 14,42 11,38 Z" />
+    <!-- Outer right petal -->
+    <path
+        android:fillColor="#C5A882"
+        android:pathData="M69,38 C66,42 62,46 57,51 C60,57 67,61 74,61 C76,56 75,47 69,38 Z" />
+    <!-- Base water ripples -->
+    <path
+        android:fillColor="#C5A882"
+        android:pathData="M2,62 C15,58 28,64 40,64 C52,64 65,58 78,62 C68,66 54,67 40,67 C26,67 12,66 2,62 Z" />
+    <path
+        android:fillColor="#C5A882"
+        android:pathData="M8,68 C20,65 30,69 40,69 C50,69 60,65 72,68 C62,71 51,72 40,72 C29,72 18,71 8,68 Z" />
+</vector>

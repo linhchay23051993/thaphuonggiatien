@@ -3,79 +3,218 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white">
+    android:background="#FAF2E6">
 
     <!-- Header -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/layoutHeader"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="56dp"
+        android:background="#FAF2E6"
         android:paddingStart="8dp"
         android:paddingEnd="16dp"
-        android:paddingTop="12dp"
-        android:paddingBottom="12dp"
-        android:background="@color/white"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
+        <!-- Watermark Hoa sen bên trái -->
         <ImageView
-            android:id="@+id/btnBack"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:src="@drawable/ic_arrow_right"
-            android:rotation="180"
-            android:scaleType="center"
-            android:padding="8dp"
-            android:contentDescription="Quay lại"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:clickable="true"
-            android:focusable="true"
-            app:tint="#5D4037"
+            android:layout_width="95dp"
+            android:layout_height="56dp"
+            android:alpha="0.22"
+            android:scaleType="fitStart"
+            android:src="@drawable/ic_watermark_lotus"
+            app:tint="#C5A882"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent" />
 
-        <TextView
-            android:id="@+id/txtTitle"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="Tất Cả Sự Kiện"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:textColor="#5D4037"
-            android:gravity="center"
-            app:layout_constraintStart_toEndOf="@+id/btnBack"
-            app:layout_constraintEnd_toStartOf="@+id/btnAddEvent"
+        <!-- Watermark Mây bên phải -->
+        <ImageView
+            android:layout_width="85dp"
+            android:layout_height="56dp"
+            android:alpha="0.18"
+            android:scaleType="fitEnd"
+            android:src="@drawable/ic_watermark_cloud"
+            app:tint="#C5A882"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent" />
 
+        <!-- Nút Quay lại (<) -->
         <ImageView
-            android:id="@+id/btnAddEvent"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:src="@android:drawable/ic_input_add"
-            android:scaleType="center"
-            android:padding="8dp"
-            android:contentDescription="Thêm sự kiện"
+            android:id="@+id/btnBack"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:padding="10dp"
+            android:contentDescription="Quay lại"
+            android:src="@drawable/ic_chevron_left"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:clickable="true"
             android:focusable="true"
-            app:tint="#8B4513"
+            app:tint="#3A1E0D"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
+
+        <!-- Tiêu đề "Tất Cả Sự Kiện" -->
+        <TextView
+            android:id="@+id/txtTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Tất Cả Sự Kiện"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="#3A1E0D"
+            android:gravity="center"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
+
+        <!-- Nút Thêm (+) hình tròn nâu -->
+        <ImageView
+            android:id="@+id/btnAddEvent"
+            android:layout_width="38dp"
+            android:layout_height="38dp"
+            android:src="@drawable/ic_plus"
+            android:scaleType="centerInside"
+            android:padding="8dp"
+            android:contentDescription="Thêm sự kiện"
+            android:background="@drawable/bg_circle_add"
+            android:clickable="true"
+            android:focusable="true"
+            android:elevation="1dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <!-- Divider -->
+    <!-- Đường kẻ phân cách dưới Header -->
     <View
-        android:id="@+id/divider"
+        android:id="@+id/dividerHeader"
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="#E0D5C5"
+        android:background="#E8DCB8"
         app:layout_constraintTop_toBottomOf="@+id/layoutHeader"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- 3 Tab Pill: Tất cả, Sắp tới, Đã qua -->
+    <LinearLayout
+        android:id="@+id/layoutTabs"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#FAF2E6"
+        android:orientation="horizontal"
+        android:paddingStart="14dp"
+        android:paddingEnd="14dp"
+        android:paddingTop="12dp"
+        android:paddingBottom="12dp"
+        app:layout_constraintTop_toBottomOf="@+id/dividerHeader"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <!-- Tab 1: Tất cả -->
+        <LinearLayout
+            android:id="@+id/tabAll"
+            android:layout_width="0dp"
+            android:layout_height="42dp"
+            android:layout_weight="1"
+            android:layout_marginEnd="6dp"
+            android:background="@drawable/bg_tab_pill_active"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp">
+
+            <ImageView
+                android:id="@+id/imgTabAll"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/ic_tab_lotus"
+                app:tint="#FFFFFF" />
+
+            <TextView
+                android:id="@+id/txtTabAll"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:text="Tất cả"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- Tab 2: Sắp tới -->
+        <LinearLayout
+            android:id="@+id/tabUpcoming"
+            android:layout_width="0dp"
+            android:layout_height="42dp"
+            android:layout_weight="1"
+            android:layout_marginStart="3dp"
+            android:layout_marginEnd="3dp"
+            android:background="@drawable/bg_tab_pill_inactive"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp">
+
+            <ImageView
+                android:id="@+id/imgTabUpcoming"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:src="@drawable/ic_tab_calendar"
+                app:tint="#4A2810" />
+
+            <TextView
+                android:id="@+id/txtTabUpcoming"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:text="Sắp tới"
+                android:textColor="#4A2810"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- Tab 3: Đã qua -->
+        <LinearLayout
+            android:id="@+id/tabPassed"
+            android:layout_width="0dp"
+            android:layout_height="42dp"
+            android:layout_weight="1"
+            android:layout_marginStart="6dp"
+            android:background="@drawable/bg_tab_pill_inactive"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp">
+
+            <ImageView
+                android:id="@+id/imgTabPassed"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:src="@drawable/ic_tab_check"
+                app:tint="#4A2810" />
+
+            <TextView
+                android:id="@+id/txtTabPassed"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:text="Đã qua"
+                android:textColor="#4A2810"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+    </LinearLayout>
 
     <!-- Empty state -->
     <LinearLayout
@@ -85,7 +224,7 @@
         android:orientation="vertical"
         android:gravity="center"
         android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@+id/divider"
+        app:layout_constraintTop_toBottomOf="@+id/layoutTabs"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
@@ -97,6 +236,7 @@
             android:textSize="48sp" />
 
         <TextView
+            android:id="@+id/txtEmptyTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
@@ -105,6 +245,7 @@
             android:textColor="#9E9E9E" />
 
         <TextView
+            android:id="@+id/txtEmptyDesc"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
@@ -120,11 +261,11 @@
         android:layout_height="0dp"
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
-        android:paddingTop="8dp"
+        android:paddingTop="4dp"
         android:paddingBottom="16dp"
         android:clipToPadding="false"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        app:layout_constraintTop_toBottomOf="@+id/divider"
+        app:layout_constraintTop_toBottomOf="@+id/layoutTabs"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />

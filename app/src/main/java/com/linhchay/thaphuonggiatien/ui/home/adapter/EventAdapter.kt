@@ -1,5 +1,6 @@
 package com.linhchay.thaphuonggiatien.ui.home.adapter
 
+import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -68,9 +69,15 @@ class EventAdapter(
             val remainingDays = com.linhchay.thaphuonggiatien.utils.DateUtils
                 .getRemainingDaysDescription(event.eventDate)
 
+            val isPassed = remainingDays == "Đã qua"
+            val badgeBg = if (isPassed) R.drawable.bg_badge_warm else R.drawable.bg_badge_red
+            val badgeColor = if (isPassed) Color.parseColor("#8D6E63") else Color.parseColor("#C2185B")
+
             if (showActions) {
                 // Màn AllEvents: badge hiện cạnh tên, menu 3 chấm bên phải
                 binding.txtStatus.text = remainingDays
+                binding.txtStatus.setBackgroundResource(badgeBg)
+                binding.txtStatus.setTextColor(badgeColor)
                 binding.txtStatus.visibility = View.VISIBLE
                 binding.layoutBadge.visibility = View.GONE
                 binding.layoutActions.visibility = View.VISIBLE
@@ -80,6 +87,8 @@ class EventAdapter(
             } else {
                 // Màn Home: badge ở bên phải (center-right), ẩn badge cạnh tên
                 binding.txtBadge.text = remainingDays
+                binding.txtBadge.setBackgroundResource(badgeBg)
+                binding.txtBadge.setTextColor(badgeColor)
                 binding.txtStatus.visibility = View.GONE
                 binding.layoutBadge.visibility = View.VISIBLE
                 binding.layoutActions.visibility = View.GONE
